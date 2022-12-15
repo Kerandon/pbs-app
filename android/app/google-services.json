@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "815682859282",
+    "project_id": "pbs-app-d73fc",
+    "storage_bucket": "pbs-app-d73fc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:815682859282:android:ac5dec9f8f38e6eac4c3cb",
+        "android_client_info": {
+          "package_name": "com.banzura.pbs_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "815682859282-pt8237hf4v25svctti0gnlipn1am5kha.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAF4ZbYzjl6GWEW65yCPZADsTm4TllvKzc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "815682859282-pt8237hf4v25svctti0gnlipn1am5kha.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
