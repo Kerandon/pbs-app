@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:pbs_app/enums/form_types.dart';
-import 'package:pbs_app/app/components/forms/student_form.dart';
+import 'package:pbs_app/utils/enums/form_types.dart';
+import 'package:pbs_app/forms/student_form.dart';
 
 class FormMain extends StatefulWidget {
   const FormMain({Key? key, required this.onSubmit, required this.formType})

@@ -4,7 +4,8 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/models/student.dart';
 import 'package:pbs_app/utils/constants.dart';
-import 'package:pbs_app/utils/methods/methods_avatar_images.dart';
+
+import 'methods_avatar_images.dart';
 
 List<Student> getStudentsFromForm(
     {required List<GlobalKey<FormBuilderState>> formKeys, String? classRoom}) {

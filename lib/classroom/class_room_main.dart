@@ -1,14 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:pbs_app/app/components/avatar_image.dart';
 import 'package:pbs_app/app/components/loading_screen.dart';
 import 'package:pbs_app/classroom/student_tile.dart';
-import 'package:pbs_app/enums/form_types.dart';
-import 'package:pbs_app/forms/form_main.dart';
+import 'package:pbs_app/utils/enums/form_types.dart';
 import 'package:pbs_app/utils/constants.dart';
 import 'package:pbs_app/utils/methods/methods_forms.dart';
 import '../app/components/error_screen.dart';
+import '../forms/form_main.dart';
 import '../app/components/loading_helper.dart';
 import '../models/student.dart';
 
@@ -70,7 +69,9 @@ class _ClassRoomMainState extends ConsumerState<ClassRoomMain> {
                             mainAxisSpacing: 6,
                             crossAxisSpacing: 6),
                     itemBuilder: (context, index) {
-                      return StudentTile(student: students[index],);
+                      return StudentTile(
+                        student: students[index],
+                      );
                     },
                   )
                 : const Center(

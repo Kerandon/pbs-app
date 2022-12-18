@@ -1,10 +1,8 @@
 import 'dart:typed_data';
-
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/app/state/simple_providers.dart';
-import 'package:pbs_app/utils/constants.dart';
 
 class AvatarImage extends ConsumerStatefulWidget {
   const AvatarImage({Key? key, required this.avatarKey}) : super(key: key);
@@ -21,17 +19,16 @@ class _AvatarImageState extends ConsumerState<AvatarImage> {
 
   @override
   void initState() {
-
-
     _firebaseStorageFuture = FirebaseStorage.instance
-        .ref().child('avatars/${widget.avatarKey}').getData();
+        .ref()
+        .child('avatars/${widget.avatarKey}')
+        .getData();
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-
     final avatarState = ref.watch(avatarProvider);
     final avatarNotifier = ref.read(avatarProvider.notifier);
 
@@ -47,15 +44,15 @@ class _AvatarImageState extends ConsumerState<AvatarImage> {
         ? FutureBuilder(
             future: _firebaseStorageFuture,
             builder: (context, snapshot) {
-
               print('future ${snapshot.data}');
 
-              if(snapshot.hasError){
+              if (snapshot.hasError) {
                 return Icon(Icons.person);
               }
-              if(snapshot.hasData) {
+              if (snapshot.hasData) {
                 print('has data');
-                avatarNotifier.state.addAll({widget.avatarKey : snapshot.data!});
+                avatarNotifier.state.addAll({widget.avatarKey: snapshot.data!});
+
                 /// FIX BELOW
                 _bytes = snapshot.data;
                 /////////////////////////////////////////////////

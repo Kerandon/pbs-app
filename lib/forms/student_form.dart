@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import '../../../enums/gender.dart';
-import '../../../data/houses.dart';
+import '../data/houses.dart';
+import '../utils/enums/gender.dart';
 import 'custom_dropdown.dart';
 import 'custom_textfield.dart';
 
@@ -51,8 +51,8 @@ class _StudentFormState extends State<StudentForm> {
             children: dropDowns,
           ),
           widget.removeDivider
-              ? SizedBox()
-              : Divider(
+              ? const SizedBox()
+              : const Divider(
                   thickness: 2,
                 ),
         ],

@@ -4,12 +4,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:pbs_app/app/state/database_service.dart';
-import 'package:pbs_app/enums/platforms.dart';
 import 'package:pbs_app/models/avatar_image.dart';
 import 'package:pbs_app/utils/constants.dart';
+import 'dart:developer' as developer;
+
 import '../../app/state/simple_providers.dart';
 import '../../models/student.dart';
-import 'dart:developer' as developer;
+import '../enums/platforms.dart';
 
 Future<Uint8List?> generateAvatar(
     {required Student student, required WidgetRef ref}) async {
