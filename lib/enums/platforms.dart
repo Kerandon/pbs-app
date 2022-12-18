@@ -1,5 +1,0 @@
-enum AppPlatform {
-  android,
-  web
-}
-

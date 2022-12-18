@@ -14,26 +14,28 @@ List<Student> getStudentsFromForm(
     var value = key.currentState!.value;
 
     students.add(Student.fromForm(
-        name: value['name'], gender: value['gender'], house: value['house'], classRoom: classRoom!));
+        name: value['name'],
+        gender: value['gender'],
+        house: value['house'],
+        classRoom: classRoom!));
   }
 
   return students;
 }
 
-Future<dynamic> addStudentsToFirebase({required List<Student> students, required WidgetRef ref}) async {
-
-    for (var s in students) {
-     FirebaseFirestore.instance
-          .collection(kCollectionClasses)
-          .doc(s.classRoom)
-          .collection(kCollectionStudents)
-          .doc(s.name).set({
-        'gender': s.gender.name,
-        'house': s.house,
-       'classroom' : s.classRoom
-      });
-     generateAvatar(student: s, ref: ref);
-    }
+Future<dynamic> addStudentsToFirebase(
+    {required List<Student> students, required WidgetRef ref}) async {
+  for (var s in students) {
+    FirebaseFirestore.instance
+        .collection(kCollectionClasses)
+        .doc(s.classRoom)
+        .collection(kCollectionStudents)
+        .doc(s.name)
+        .set(
+      {'gender': s.gender.name, 'house': s.house, 'classroom': s.classRoom},
+    );
+    await generateAvatar(student: s, ref: ref);
+  }
 
   return 1;
 }

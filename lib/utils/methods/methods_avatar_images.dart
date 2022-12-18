@@ -30,9 +30,10 @@ Future<Uint8List?> generateAvatar(
           .ref('$kAvatarsBucket/$avatarKey')
           .putData(bytes);
       if (uploadTask.state == TaskState.success) {
+        print('bytes to add $bytes');
         ref.read(avatarProvider).addAll({avatarKey: bytes});
 
-        if (ref.read(platformProvider).name != AppPlatform.web.name) {
+        if(appPlatform != AppPlatform.web) {
           DatabaseService().insertAvatars(
             avatars: [
               SavedAvatar(avatarKey: avatarKey, bytes: bytes),

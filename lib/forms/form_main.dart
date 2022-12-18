@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:pbs_app/enums/form_types.dart';
-import 'package:pbs_app/forms/student_form.dart';
+import 'package:pbs_app/app/components/forms/student_form.dart';
 
 class FormMain extends StatefulWidget {
   const FormMain({Key? key, required this.onSubmit, required this.formType})
@@ -48,6 +48,11 @@ class _FormMainState extends State<FormMain> {
           if (_formKeys.isNotEmpty) {
             bool isValid = _formKeys
                 .every((element) => element.currentState!.saveAndValidate());
+
+            for (var w in _formKeys) {
+              w.currentState!.saveAndValidate();
+            }
+
             if (isValid) {
               widget.onSubmit(_formKeys);
             }
@@ -73,10 +78,10 @@ class _FormMainState extends State<FormMain> {
       ),
       body: Padding(
         padding: EdgeInsets.fromLTRB(
-          size.width * 0.08,
-          size.width * 0.02,
-          size.width * 0.08,
-          size.width * 0.02,
+          size.width * 0.04,
+          size.height * 0.02,
+          size.width * 0.04,
+          size.height * 0.02,
         ),
         child: ListView.builder(
           itemCount: _numberOfForms,

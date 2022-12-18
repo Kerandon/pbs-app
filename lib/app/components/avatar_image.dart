@@ -17,19 +17,22 @@ class AvatarImage extends ConsumerStatefulWidget {
 
 class _AvatarImageState extends ConsumerState<AvatarImage> {
   Uint8List? _bytes;
-  late final Future _firebaseStorageFuture;
+  late final Future<Uint8List?> _firebaseStorageFuture;
 
   @override
   void initState() {
+
+
     _firebaseStorageFuture = FirebaseStorage.instance
-        .ref('$kAvatarsBucket/${widget.avatarKey}')
-        .getData();
+        .ref().child('avatars/${widget.avatarKey}').getData();
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final avatarState = ref.read(avatarProvider);
+
+    final avatarState = ref.watch(avatarProvider);
     final avatarNotifier = ref.read(avatarProvider.notifier);
 
     if (avatarState.containsKey(widget.avatarKey)) {
@@ -38,15 +41,21 @@ class _AvatarImageState extends ConsumerState<AvatarImage> {
           .value;
     }
 
+    print('bytes are null? $_bytes');
+
     return _bytes == null
         ? FutureBuilder(
             future: _firebaseStorageFuture,
             builder: (context, snapshot) {
+
+              print('future ${snapshot.data}');
+
               if(snapshot.hasError){
                 return Icon(Icons.person);
               }
               if(snapshot.hasData) {
-                avatarNotifier.state.addAll({widget.avatarKey : snapshot.data});
+                print('has data');
+                avatarNotifier.state.addAll({widget.avatarKey : snapshot.data!});
                 /// FIX BELOW
                 _bytes = snapshot.data;
                 /////////////////////////////////////////////////
