@@ -4,7 +4,6 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/models/student.dart';
 import 'package:pbs_app/utils/constants.dart';
-
 import 'methods_avatar_images.dart';
 
 List<Student> getStudentsFromForm(
@@ -15,10 +14,11 @@ List<Student> getStudentsFromForm(
     var value = key.currentState!.value;
 
     students.add(Student.fromForm(
-        name: value['name'],
-        gender: value['gender'],
-        house: value['house'],
-        classRoom: classRoom!));
+      name: value['name'],
+      gender: value['gender'],
+      house: value['house'],
+      classRoom: classRoom!,
+    ));
   }
 
   return students;
@@ -33,7 +33,13 @@ Future<dynamic> addStudentsToFirebase(
         .collection(kCollectionStudents)
         .doc(s.name)
         .set(
-      {'gender': s.gender.name, 'house': s.house, 'classroom': s.classRoom},
+      {
+        'gender': s.gender.name,
+        'house': s.house,
+        'classroom': s.classRoom,
+        'points': 0,
+        'present': true
+      },
     );
     await generateAvatar(student: s, ref: ref);
   }

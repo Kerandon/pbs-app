@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:pbs_app/utils/constants.dart';
 
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
@@ -16,20 +17,19 @@ class CustomTextField extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     return Stack(
       children: [
-        SizedBox(
+        Container(
           width: size.width,
-          height: size.height * 0.06,
+          height: size.height * kFormHeight,
           child: FormBuilderTextField(
-            name: name,
             decoration: InputDecoration(
-                hintStyle: Theme.of(context).textTheme.displaySmall,
-                hintText: boxLabel,
-                contentPadding: EdgeInsets.only(top: size.height * 0.021),
-                isDense: true,
-                border: InputBorder.none),
+              border: InputBorder.none,
+                hintStyle: Theme.of(context).textTheme.displaySmall!.copyWith(color: Colors.black54),
+                hintText: 'Enter your name',
+            ),
+            name: name,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return "Field is blank";
+                return "Field is empty";
               }
               return null;
             },

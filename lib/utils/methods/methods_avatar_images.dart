@@ -9,6 +9,7 @@ import 'package:pbs_app/utils/constants.dart';
 import 'dart:developer' as developer;
 
 import '../../app/state/simple_providers.dart';
+import '../../globals.dart';
 import '../../models/student.dart';
 import '../enums/platforms.dart';
 
@@ -31,7 +32,6 @@ Future<Uint8List?> generateAvatar(
           .ref('$kAvatarsBucket/$avatarKey')
           .putData(bytes);
       if (uploadTask.state == TaskState.success) {
-        print('bytes to add $bytes');
         ref.read(avatarProvider).addAll({avatarKey: bytes});
 
         if(appPlatform != AppPlatform.web) {

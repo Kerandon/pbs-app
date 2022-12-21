@@ -44,6 +44,7 @@ class _StudentFormState extends State<StudentForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomTextField(
+
               name: 'name',
               boxLabel:
                   'Enter student\'s name ${(widget.index + 1).toString()}'),
@@ -52,9 +53,12 @@ class _StudentFormState extends State<StudentForm> {
           ),
           widget.removeDivider
               ? const SizedBox()
-              : const Divider(
-                  thickness: 2,
-                ),
+              : Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: const Divider(
+                    thickness: 1,
+                  ),
+              ),
         ],
       ),
     );

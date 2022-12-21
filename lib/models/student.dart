@@ -5,12 +5,17 @@ class Student {
   final Gender gender;
   final String house;
   final String classRoom;
+  final bool present;
+  final int points;
 
-  Student(
-      {required this.name,
-      required this.gender,
-      required this.house,
-      required this.classRoom});
+  Student({
+    required this.name,
+    required this.gender,
+    required this.house,
+    required this.classRoom,
+    required this.present,
+    required this.points,
+  });
 
   factory Student.fromForm(
       {required String name,
@@ -24,12 +29,18 @@ class Student {
     if (gender == Gender.other.name) {
       g == Gender.other;
     }
-    return Student(name: name, gender: g, house: house, classRoom: classRoom);
+    return Student(
+      name: name,
+      gender: g,
+      house: house,
+      classRoom: classRoom,
+      present: true,
+      points: 0,
+    );
   }
 
   factory Student.fromJson(
       {required String name, required Map<String, dynamic> json}) {
-
     Gender gender = Gender.male;
     String g = json['gender'];
     if (g == Gender.female.name) {
@@ -43,6 +54,8 @@ class Student {
       gender: gender,
       house: json['house'],
       classRoom: json['classroom'],
+      present: true,
+      points: 0,
     );
   }
 }

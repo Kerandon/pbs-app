@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
 final appTheme = ThemeData(
-  textTheme: TextTheme(
-    displaySmall: appTextStyle()
-  )
+  textTheme: TextTheme(displaySmall: appTextStyle()),
+  dividerColor: Colors.blue,
 );
 
 TextStyle appTextStyle() {
   return const TextStyle(
-    fontSize: 12,
+    fontSize: 10,
     color: Colors.black,
   );
 }

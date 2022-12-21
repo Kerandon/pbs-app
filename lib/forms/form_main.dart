@@ -15,7 +15,7 @@ class FormMain extends StatefulWidget {
 }
 
 class _FormMainState extends State<FormMain> {
-  List<GlobalKey<FormBuilderState>> _formKeys = [];
+  final List<GlobalKey<FormBuilderState>> _formKeys = [];
 
   int _numberOfForms = 0;
 

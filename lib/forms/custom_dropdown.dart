@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:pbs_app/utils/methods/methods_extensions.dart';
 
+import '../utils/constants.dart';
+
 class CustomDropDown extends StatefulWidget {
   const CustomDropDown({
     super.key,
@@ -29,55 +31,39 @@ class _CustomDropDownState extends State<CustomDropDown> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Stack(
-      children: [
-        _valueSelected
-            ? SizedBox(
-                height: size.height * 0.06,
-              )
-            : SizedBox(
-                width: size.width,
-                height: size.height * 0.06,
-                child: Align(
-                  alignment: const Alignment(-1, -0.10),
-                  child: Text(
-                    widget.boxLabel.capitalizeFirstLetter(),
-                    style: Theme.of(context)
-                        .textTheme
-                        .displaySmall
-                        ?.copyWith(fontSize: 12),
-                  ),
-                ),
+    return FormBuilderDropdown(
+      decoration: InputDecoration(
+        hintText: 'Select',
+        hintStyle: Theme.of(context).textTheme.displaySmall!.copyWith(
+              color: Colors.black54,
+            ),
+        border: InputBorder.none,
+      ),
+      name: widget.boxLabel,
+      onChanged: (value) {
+        _onValueSelected(value);
+      },
+      items: widget.values
+          .map(
+            (e) => DropdownMenuItem<String>(
+              value: e,
+              child: Text(
+                e,
+                style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                      color: Colors.black54,
+                    ),
               ),
-        FormBuilderDropdown(
-          name: widget.boxLabel,
-          onChanged: (value) {
-            _onValueSelected(value);
-          },
-          items: widget.values
-              .map(
-                (e) => DropdownMenuItem<String>(
-                  value: e,
-                  child: Text(
-                    e,
-                    style: Theme.of(context).textTheme.displaySmall,
-                  ),
-                ),
-              )
-              .toList(),
-          style: Theme.of(context).textTheme.displaySmall,
-          decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.only(bottom: size.height * 0.008)),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Make a selection';
-            }
-            return null;
-          },
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-        ),
-      ],
+            ),
+          )
+          .toList(),
+      style: Theme.of(context).textTheme.displaySmall,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Make a selection';
+        }
+        return null;
+      },
+      autovalidateMode: AutovalidateMode.onUserInteraction,
     );
   }
 }
