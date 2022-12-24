@@ -1,47 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:pbs_app/utils/methods/methods_extensions.dart';
-
-import '../utils/constants.dart';
 
 class CustomDropDown extends StatefulWidget {
   const CustomDropDown({
     super.key,
     required this.boxLabel,
     required this.values,
+    this.hintText = 'Select'
   });
 
   final String boxLabel;
   final List<String> values;
+  final String hintText;
 
   @override
   State<CustomDropDown> createState() => _CustomDropDownState();
 }
 
 class _CustomDropDownState extends State<CustomDropDown> {
-  bool _valueSelected = false;
-
-  void _onValueSelected(String? value) {
-    if (value != null) {
-      _valueSelected = true;
-      setState(() {});
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return FormBuilderDropdown(
       decoration: InputDecoration(
         hintText: 'Select',
         hintStyle: Theme.of(context).textTheme.displaySmall!.copyWith(
               color: Colors.black54,
             ),
+        errorStyle: Theme.of(context).textTheme.displaySmall!.copyWith(
+              color: Colors.red,
+            ),
         border: InputBorder.none,
       ),
       name: widget.boxLabel,
       onChanged: (value) {
-        _onValueSelected(value);
+        if (value != null) {
+          setState(() {});
+        }
       },
       items: widget.values
           .map(

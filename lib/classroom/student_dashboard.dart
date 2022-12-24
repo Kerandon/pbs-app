@@ -2,9 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pbs_app/animations/slide_animation.dart';
 import 'package:pbs_app/app/components/avatar_image.dart';
+import 'package:pbs_app/app/components/loading_helper.dart';
+import 'package:pbs_app/classroom/student_settings.dart';
+import '../app/components/confirmation_box.dart';
 import '../models/student.dart';
 import '../utils/constants.dart';
 import 'dart:math' as math;
+
+import '../utils/methods/clear_points.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({Key? key, required this.student}) : super(key: key);
@@ -27,13 +32,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
   void initState() {
     _firebaseInstance = FirebaseFirestore.instance;
     _documentReference = _firebaseInstance
-        .collection(kCollectionClasses)
+        .collection(kCollectionClassrooms)
         .doc(widget.student.classRoom)
         .collection(kCollectionStudents)
         .doc(widget.student.name);
 
     _studentStream = _firebaseInstance
-        .collection(kCollectionClasses)
+        .collection(kCollectionClassrooms)
         .doc(widget.student.classRoom)
         .collection(kCollectionStudents)
         .doc(widget.student.name)
@@ -49,7 +54,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Material(
-          color: Colors.black12,
+          color: Colors.teal,
           child: SizedBox(
             height: size.height * 0.20,
             width: size.width,
@@ -65,12 +70,12 @@ class _StudentDashboardState extends State<StudentDashboard> {
                     if (snapshot.hasData) {
                       _present = snapshot.data?.get('present');
                       _points = snapshot.data?.get('points');
-                      print('is present $_present');
                     }
 
                     return Column(
                       children: [
                         Expanded(
+                          flex: 2,
                           child: Column(
                             children: [
                               Expanded(
@@ -83,9 +88,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                       width: size.width * 0.10,
                                       height: size.width * 0.10,
                                       child: AvatarImage(
-                                        avatarKey:
-                                            '${widget.student.classRoom}_${widget.student.name}',
                                         present: _present,
+                                        student: widget.student,
                                       ),
                                     ),
                                     Text(widget.student.name),
@@ -94,8 +98,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                   ],
                                 ),
                               ),
+                              SizedBox(
+                                height: size.height * 0.01,
+                              ),
                               Expanded(
-                                flex: 2,
+                                flex: 1,
                                 child: Row(
                                   children: [
                                     Expanded(
@@ -105,11 +112,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                           right: size.width * 0.02,
                                         ),
                                         child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.orange),
                                           onPressed: () async {
                                             await _firebaseInstance
-                                                .collection(kCollectionClasses)
+                                                .collection(
+                                                    kCollectionClassrooms)
                                                 .doc(widget.student.classRoom)
                                                 .collection(kCollectionStudents)
                                                 .doc(widget.student.name)
@@ -120,7 +126,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                               },
                                             );
                                           },
-                                          child: Text('Award a Point!'),
+                                          child: const Text('Award a Point!'),
                                         ),
                                       ),
                                     ),
@@ -131,8 +137,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                           right: size.width * 0.05,
                                         ),
                                         child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.orange),
                                           onPressed: () async {
                                             _firebaseInstance.runTransaction(
                                               (transaction) async {
@@ -156,8 +160,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                 children: [
                                   Expanded(
                                     child: IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                StudentSettings(
+                                                    student: widget.student),
+                                          ),
+                                        );
+                                      },
+                                      icon: const Icon(
                                         Icons.edit,
                                         color: Colors.white,
                                       ),
@@ -165,11 +177,37 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                   ),
                                   Expanded(
                                     child: IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(
-                                        Icons.person,
-                                        color: Colors.white,
-                                      ),
+                                      onPressed: () async {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return Builder(
+                                              builder: (context) {
+                                                late final Future
+                                                    clearPointsFuture =
+                                                    clearPoints(
+                                                        student:
+                                                            widget.student);
+
+                                                return ConfirmationBox(
+                                                  title:
+                                                      'Reset ${widget.student.name}\'s points?',
+                                                  voidCallBack: () {
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (context) =>
+                                                            LoadingHelper(
+                                                                future:
+                                                                    clearPointsFuture));
+                                                  },
+                                                );
+                                              },
+                                            );
+                                          },
+                                        );
+                                      },
+                                      icon: const Icon(Icons.refresh_outlined,
+                                          color: Colors.white),
                                     ),
                                   ),
                                 ],
@@ -185,23 +223,5 @@ class _StudentDashboardState extends State<StudentDashboard> {
         ),
       ),
     );
-  }
-
-  bool checkIfHighestPoint(
-      AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
-    List<int> allPoints = [];
-    final docs = snapshot.data!.docs;
-    for (var d in docs) {
-      allPoints.add(d.get('points'));
-    }
-    final highestPoint = allPoints.reduce(math.max);
-    if (_points != 0 && _points >= highestPoint) {
-      setState(() {});
-
-      return true;
-    } else {
-      setState(() {});
-      return false;
-    }
   }
 }

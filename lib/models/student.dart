@@ -54,8 +54,8 @@ class Student {
       gender: gender,
       house: json['house'],
       classRoom: json['classroom'],
-      present: true,
-      points: 0,
+      present: json['present'],
+      points: json['points'],
     );
   }
 }

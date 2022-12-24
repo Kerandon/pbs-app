@@ -2,23 +2,22 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/configs/app_theme.dart';
+import 'package:pbs_app/state/database_manager.dart';
+import 'package:pbs_app/state/simple_providers.dart';
 import 'package:pbs_app/utils/enums/platforms.dart';
+import 'app/components/error_page.dart';
+import 'app/components/loading_page.dart';
 import 'classroom/class_room_main.dart';
-import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-import 'globals.dart';
+import 'utils/globals.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   FirebaseOptions? options;
 
-  if (Platform.isAndroid) {
-    appPlatform = AppPlatform.android;
-  } else if (Platform.isIOS) {
-    appPlatform = AppPlatform.iOS;
-  } else if (kIsWeb) {
+  if (kIsWeb) {
     appPlatform = AppPlatform.web;
     options = const FirebaseOptions(
         apiKey: "AIzaSyCi67qBQTR_E2aaGB-Oxeh4-EozNhkrLBk",
@@ -32,7 +31,11 @@ Future<void> main() async {
 
   await Firebase.initializeApp(options: options);
 
-  runApp(const ProviderScope(child: PBSApp()));
+  runApp(
+    const ProviderScope(
+      child: PBSApp(),
+    ),
+  );
 }
 
 class PBSApp extends ConsumerWidget {
@@ -41,8 +44,24 @@ class PBSApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: appTheme,
-        home: const ClassRoomMain());
+      debugShowCheckedModeBanner: false,
+      theme: appTheme,
+      home: appPlatform != AppPlatform.web ?
+          FutureBuilder(
+              future: DatabaseManager().getAllAvatars(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final avatarState = ref.read(avatarProvider);
+                  avatarState.addAll(snapshot.data!);
+                  return const ClassRoomMain();
+                }
+                if (snapshot.hasError) {
+                  return const ErrorPage();
+                } else {
+                  return const LoadingPage();
+                }
+              }
+          ) : ClassRoomMain()
+    );
   }
 }

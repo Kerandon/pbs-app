@@ -7,7 +7,7 @@ final appTheme = ThemeData(
 
 TextStyle appTextStyle() {
   return const TextStyle(
-    fontSize: 10,
+    fontSize: 15,
     color: Colors.black,
   );
 }

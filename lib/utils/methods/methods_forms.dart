@@ -4,7 +4,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/models/student.dart';
 import 'package:pbs_app/utils/constants.dart';
-import 'methods_avatar_images.dart';
+import 'generate_avatar.dart';
 
 List<Student> getStudentsFromForm(
     {required List<GlobalKey<FormBuilderState>> formKeys, String? classRoom}) {
@@ -28,7 +28,7 @@ Future<dynamic> addStudentsToFirebase(
     {required List<Student> students, required WidgetRef ref}) async {
   for (var s in students) {
     FirebaseFirestore.instance
-        .collection(kCollectionClasses)
+        .collection(kCollectionClassrooms)
         .doc(s.classRoom)
         .collection(kCollectionStudents)
         .doc(s.name)

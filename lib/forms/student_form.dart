@@ -47,15 +47,15 @@ class _StudentFormState extends State<StudentForm> {
 
               name: 'name',
               boxLabel:
-                  'Enter student\'s name ${(widget.index + 1).toString()}'),
+                  'Enter student name ${(widget.index + 1).toString()}'),
           Column(
             children: dropDowns,
           ),
           widget.removeDivider
               ? const SizedBox()
-              : Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: const Divider(
+              : const Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Divider(
                     thickness: 1,
                   ),
               ),

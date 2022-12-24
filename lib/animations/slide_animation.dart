@@ -39,7 +39,7 @@ class _SlideAnimationState extends State<SlideAnimation>
     final size = MediaQuery.of(context).size;
     return SlideTransition(
       position: _slide,
-      child: Container(
+      child: SizedBox(
         width: size.width,
         height: size.height,
         child: Align(
