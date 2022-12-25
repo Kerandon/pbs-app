@@ -1,18 +1,25 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/classroom/class_room_main.dart';
 import 'package:pbs_app/data/houses.dart';
 import 'package:pbs_app/forms/custom_dropdown.dart';
-import 'package:pbs_app/forms/custom_textfield.dart';
+import 'package:pbs_app/forms/custom_text_field.dart';
 import 'package:pbs_app/models/student.dart';
+import 'package:pbs_app/state/simple_providers.dart';
 import 'package:pbs_app/utils/enums/gender.dart';
 import 'package:pbs_app/utils/methods/generate_avatar.dart';
 
 import '../app/components/avatar_image.dart';
 import '../app/components/confirmation_box.dart';
 import '../app/components/loading_helper.dart';
+import '../forms/custom_number_field.dart';
+import '../forms/student_settings_form.dart';
 import '../utils/constants.dart';
 import '../utils/methods/image_picker.dart';
 
@@ -81,8 +88,11 @@ class _StudentSettingsState extends State<StudentSettings> {
                 child: ListView(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('Student avatar'),
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Student avatar',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
                     ),
                     SizedBox(
                       width: size.width * 0.80,
@@ -100,7 +110,7 @@ class _StudentSettingsState extends State<StudentSettings> {
                           children: [
                             Expanded(
                               flex: 10,
-                              child: ElevatedButton(
+                              child: OutlinedButton(
                                 onPressed: () {
                                   showDialog(
                                     context: context,
@@ -138,7 +148,7 @@ class _StudentSettingsState extends State<StudentSettings> {
                             ),
                             Expanded(
                               flex: 10,
-                              child: ElevatedButton(
+                              child: OutlinedButton(
                                 onPressed: () async {
                                   final result = await pickImage();
                                   if (result != null) {
@@ -179,32 +189,16 @@ class _StudentSettingsState extends State<StudentSettings> {
                     ),
                     const Padding(
                       padding: EdgeInsets.only(top: 16, bottom: 16),
-                      child: Divider(
-                        thickness: 2,
-                      ),
+                      child: Divider(),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('Student Details'),
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Student details',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
                     ),
-                    CustomTextField(
-                        boxLabel: widget.student.name, name: 'name'),
-                    CustomDropDown(
-                        boxLabel: widget.student.gender.toText(),
-                        hintText: widget.student.gender.toText(),
-                        values: Gender.values.map((e) => e.toText()).toList()),
-                    CustomDropDown(
-                      boxLabel: widget.student.house,
-                      hintText: widget.student.house,
-                      values: houses,
-                    ),
-                    CustomDropDown(
-                      boxLabel: widget.student.classRoom,
-                      hintText: widget.student.classRoom,
-                      values: houses,
-                    ),
-                    CustomTextField(
-                        boxLabel: 'Points  ${widget.student.points.toString()}', name: 'points'),
+                    StudentSettingsForm(student: widget.student),
                   ],
                 ),
               ),

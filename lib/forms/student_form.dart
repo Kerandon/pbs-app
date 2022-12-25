@@ -3,7 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import '../data/houses.dart';
 import '../utils/enums/gender.dart';
 import 'custom_dropdown.dart';
-import 'custom_textfield.dart';
+import 'custom_text_field.dart';
 
 class StudentForm extends StatefulWidget {
   const StudentForm({
@@ -28,10 +28,10 @@ class _StudentFormState extends State<StudentForm> {
   void initState() {
     dropDowns = [
       CustomDropDown(
-        boxLabel: "gender",
+        name: "gender",
         values: Gender.values.map((e) => e.toText()).toList(),
       ),
-      CustomDropDown(boxLabel: "house", values: houses),
+      CustomDropDown(name: "house", values: houses),
     ];
     super.initState();
   }
@@ -46,7 +46,7 @@ class _StudentFormState extends State<StudentForm> {
           CustomTextField(
 
               name: 'name',
-              boxLabel:
+              hintText:
                   'Enter student name ${(widget.index + 1).toString()}'),
           Column(
             children: dropDowns,

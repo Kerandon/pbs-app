@@ -65,12 +65,11 @@ class _ClassRoomMainState extends ConsumerState<ClassRoomMain> {
                             left: size.width * 0.08,
                             top: size.height * 0.02,
                             right: size.width * 0.08),
-                        gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 5,
-                                mainAxisSpacing: size.width * 0.02,
-                                crossAxisSpacing: size.width * 0.02,
-                            ),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 5,
+                          mainAxisSpacing: size.width * 0.02,
+                          crossAxisSpacing: size.width * 0.02,
+                        ),
                         itemBuilder: (context, index) {
                           return StudentTile(
                             student: students[index],
@@ -78,7 +77,8 @@ class _ClassRoomMainState extends ConsumerState<ClassRoomMain> {
                         },
                       )
                     : const Center(
-                        child: Text('Add students to your class (top right menu)')),
+                        child: Text(
+                            'Add students to your class (top right menu)')),
                 drawer: Drawer(
                   child: Column(
                     children: [
@@ -103,9 +103,12 @@ class _ClassRoomMainState extends ConsumerState<ClassRoomMain> {
                                             students: students, ref: ref),
                                         onFutureComplete: () async {
                                           ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
-                                                  content: Text(
-                                                      'Students added successfully!')));
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Students added successfully!'),
+                                            ),
+                                          );
                                           Navigator.pushReplacement(
                                             context,
                                             MaterialPageRoute(

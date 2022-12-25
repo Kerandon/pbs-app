@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
-class CustomTextField extends StatelessWidget {
-  const CustomTextField({
+class CustomNumberField extends StatelessWidget {
+  const CustomNumberField({
     super.key,
-    required this.boxLabel,
     required this.name,
+    this.hintText,
+    this.initialValue,
   });
 
-  final String boxLabel;
+  final String? hintText;
+  final String? initialValue;
   final String name;
 
   @override
@@ -16,13 +19,24 @@ class CustomTextField extends StatelessWidget {
     return Stack(
       children: [
         FormBuilderTextField(
+          textAlign: TextAlign.center,
+
+          initialValue: initialValue,
+          keyboardType: TextInputType.number,
+          maxLength: 3,
+
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+
           decoration: InputDecoration(
-            border: InputBorder.none,
+            counterText: "",
+            helperText: "",
+            contentPadding: EdgeInsets.zero,
+            border: OutlineInputBorder(),
             hintStyle: Theme.of(context)
                 .textTheme
                 .displaySmall!
                 .copyWith(color: Colors.black54),
-            hintText: boxLabel,
+            hintText: hintText,
             errorStyle: Theme.of(context).textTheme.displaySmall!.copyWith(
                   color: Colors.red,
                 ),
@@ -30,12 +44,16 @@ class CustomTextField extends StatelessWidget {
           name: name,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return "Field is empty";
+              return "";
+            }
+            if(value.length > 3){
+              return "";
             }
             return null;
           },
           style: Theme.of(context).textTheme.displaySmall,
           autovalidateMode: AutovalidateMode.onUserInteraction,
+
         ),
       ],
     );

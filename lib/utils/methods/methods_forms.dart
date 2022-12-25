@@ -14,9 +14,9 @@ List<Student> getStudentsFromForm(
     var value = key.currentState!.value;
 
     students.add(Student.fromForm(
-      name: value['name'],
-      gender: value['gender'],
-      house: value['house'],
+      name: value[kName],
+      gender: value[kGender],
+      house: value[kHouse],
       classRoom: classRoom!,
     ));
   }
@@ -34,11 +34,11 @@ Future<dynamic> addStudentsToFirebase(
         .doc(s.name)
         .set(
       {
-        'gender': s.gender.name,
-        'house': s.house,
-        'classroom': s.classRoom,
-        'points': 0,
-        'present': true
+        kGender: s.gender.name,
+        kHouse : s.house,
+        kClassroom : s.classRoom,
+        kPoints : 0,
+        kPresent : true
       },
     );
     await generateAvatar(student: s, ref: ref);

@@ -15,17 +15,18 @@ class ConfirmationBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        title,
+        title, style: Theme.of(context).textTheme.headlineSmall,
         textAlign: TextAlign.center,
       ),
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: [
-        IconButton(onPressed: voidCallBack, icon: const Icon(FontAwesomeIcons.check, color: Colors.amber, size: 30,)),
+
         IconButton(
             onPressed: () async {
               await Navigator.maybePop(context);
             },
-            icon: const Icon(FontAwesomeIcons.xmark, color: Colors.red, size: 30,))
+            icon: const Icon(Icons.check),),
+        IconButton(onPressed: voidCallBack, icon: const Icon(Icons.close),),
       ],
     );
   }
