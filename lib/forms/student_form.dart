@@ -29,7 +29,7 @@ class _StudentFormState extends State<StudentForm> {
     dropDowns = [
       CustomDropDown(
         name: "Gender",
-        hintText: 'gender',
+        hintText: 'Gender',
         values: Gender.values.map((e) => e.toText()).toList(),
       ),
       CustomDropDown(name: "house",

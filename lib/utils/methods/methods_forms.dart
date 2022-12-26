@@ -16,11 +16,13 @@ List<Student> getStudentsFromForm(
   for (var key in formKeys) {
     var value = key.currentState!.value;
 
+    print('value is ${value}');
+
     students.add(Student.fromForm(
       name: value[kName],
-      gender: value[kGender],
+      gender: 'Male',
       house: value[kHouse],
-      classRoom: classRoom!,
+      classRoom: 'B1',
     ));
   }
 
@@ -41,7 +43,7 @@ Future<dynamic> addStudentsToFirebase(
         kHouse: s.house,
         kClassroom: s.classRoom,
         kPoints: 0,
-        kPresent: true
+        kAttendance: true
       },
     );
     await generateAvatar(student: s, ref: ref);
@@ -82,7 +84,7 @@ Future<int?> updateStudentDetails(
         kClassroom: 'B1',
         kHouse: value[kHouse],
         kPoints: int.parse(value[kPoints]),
-        kPresent: value[kPresent] == 'Present' ? true : false
+        kAttendance: value[kAttendance] == 'Present' ? true : false
       }).then((value) async {
         await documentReference.delete();
       });
@@ -100,7 +102,7 @@ Future<int?> updateStudentDetails(
         'classroom': 'B1',
         'house': value[kHouse],
         'points': int.parse(value[kPoints]),
-        'present': value[kPresent] == 'Present' ? true : false
+        'present': value[kAttendance] == 'Present' ? true : false
       });
     } on FirebaseException catch (e) {
       developer.log(e.message!);

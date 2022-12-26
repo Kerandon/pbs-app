@@ -7,11 +7,13 @@ class CustomTextField extends StatelessWidget {
     required this.name,
     this.hintText,
     this.initialValue,
+    this.newValueEntered,
   });
 
   final String? hintText;
   final String? initialValue;
   final String name;
+  final Function(bool)? newValueEntered;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +26,13 @@ class CustomTextField extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(bottom: size.height * 0.01),
           child: FormBuilderTextField(
+            onChanged: (value){
+              if(value != initialValue){
+                newValueEntered?.call(true);
+              }else{
+                newValueEntered?.call(false);
+              }
+            },
             initialValue: initialValue,
             maxLength: maxLength,
             decoration: InputDecoration(

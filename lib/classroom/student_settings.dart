@@ -78,7 +78,7 @@ class _StudentSettingsState extends State<StudentSettings> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        'Change student avatar',
+                        'Student avatar',
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                     ),
@@ -187,7 +187,7 @@ class _StudentSettingsState extends State<StudentSettings> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        'Change student details',
+                        'Student details',
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                     ),

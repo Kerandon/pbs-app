@@ -49,6 +49,7 @@ class Student {
     if (g == Gender.other.name) {
       gender == Gender.other;
     }
+
     return Student(
       name: name,
       gender: gender,

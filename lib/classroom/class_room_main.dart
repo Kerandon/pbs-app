@@ -94,6 +94,11 @@ class _ClassRoomMainState extends ConsumerState<ClassRoomMain> {
                               builder: (context) => FormMain(
                                 formType: FormType.student,
                                 onSubmit: (formKeys) async {
+                                  print('no of keys are ${formKeys.length}');
+                                  for(var k in formKeys){
+                                    print(k.currentState?.value);
+                                    k.currentState?.save();
+                                  }
                                   final students = getStudentsFromForm(
                                       formKeys: formKeys, classRoom: 'B1');
                                   Navigator.of(context).pushReplacement(

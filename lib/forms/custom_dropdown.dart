@@ -7,13 +7,14 @@ class CustomDropDown extends StatefulWidget {
     required this.name,
     required this.values,
     this.hintText,
-    this.initialValue,
+    this.initialValue, this.newValueEntered,
   });
 
   final String name;
   final List<String> values;
   final String? hintText;
   final dynamic initialValue;
+  final Function(bool newValue)? newValueEntered;
 
   @override
   State<CustomDropDown> createState() => _CustomDropDownState();
@@ -27,6 +28,13 @@ class _CustomDropDownState extends State<CustomDropDown> {
     return Padding(
       padding: EdgeInsets.only(bottom: size.height * 0.01),
       child: FormBuilderDropdown(
+        onChanged: (value){
+          if(value != widget.initialValue){
+            widget.newValueEntered?.call(true);
+          }else{
+            widget.newValueEntered?.call(false);
+          }
+        },
         initialValue: widget.initialValue,
 
         decoration: InputDecoration(
@@ -43,11 +51,6 @@ class _CustomDropDownState extends State<CustomDropDown> {
           border: OutlineInputBorder(),
         ),
         name: widget.name,
-        onChanged: (value) {
-          if (value != null) {
-            setState(() {});
-          }
-        },
         items: widget.values
             .map(
               (e) => DropdownMenuItem<String>(
@@ -69,7 +72,9 @@ class _CustomDropDownState extends State<CustomDropDown> {
           return null;
         },
         autovalidateMode: AutovalidateMode.onUserInteraction,
+
       ),
+
     );
   }
 }

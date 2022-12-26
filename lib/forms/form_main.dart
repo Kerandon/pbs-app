@@ -32,9 +32,9 @@ class _FormMainState extends State<FormMain> {
   }
 
   _removeForm() {
-    if (_numberOfForms > 0) {
+    if (_formKeys.isNotEmpty) {
       _numberOfForms--;
-      _formKeys.remove(GlobalKey<FormBuilderState>());
+      _formKeys.removeLast();
     }
     setState(() {});
   }
@@ -45,6 +45,9 @@ class _FormMainState extends State<FormMain> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+
+          print('number of forms $_numberOfForms form keys ${_formKeys.length}');
+
           if (_formKeys.isNotEmpty) {
             bool isValid = _formKeys
                 .every((element) => element.currentState!.saveAndValidate());
@@ -54,6 +57,10 @@ class _FormMainState extends State<FormMain> {
             }
 
             if (isValid) {
+              for(var k in _formKeys){
+                print(k.currentState!.value);
+                print(_formKeys);
+              }
               widget.onSubmit(_formKeys);
             }
           }

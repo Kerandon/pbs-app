@@ -8,17 +8,26 @@ class CustomNumberField extends StatelessWidget {
     required this.name,
     this.hintText,
     this.initialValue,
+    this.newValueEntered,
   });
 
   final String? hintText;
   final String? initialValue;
   final String name;
+  final Function(bool)? newValueEntered;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         FormBuilderTextField(
+          onChanged: (value){
+            if(value != initialValue){
+              newValueEntered?.call(true);
+            }else{
+              newValueEntered?.call(false);
+            }
+          },
           textAlign: TextAlign.center,
 
           initialValue: initialValue,

@@ -190,7 +190,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
                                                 return ConfirmationBox(
                                                   title:
-                                                      'Reset ${widget.student.name}\'s points?',
+                                                      'Clear ${widget.student.name}\'s points?',
                                                   voidCallBack: () {
                                                     showDialog(
                                                         context: context,

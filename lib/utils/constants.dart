@@ -10,4 +10,4 @@ const kGender = 'gender';
 const kClassroom = 'classroom';
 const kHouse = 'house';
 const kPoints = 'points';
-const kPresent = 'present';
+const kAttendance = 'present';
