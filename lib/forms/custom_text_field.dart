@@ -15,6 +15,9 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    int maxLength = 25;
+
     final size = MediaQuery.of(context).size;
     return Stack(
       children: [
@@ -22,9 +25,9 @@ class CustomTextField extends StatelessWidget {
           padding: EdgeInsets.only(bottom: size.height * 0.01),
           child: FormBuilderTextField(
             initialValue: initialValue,
-            maxLength: 22,
+            maxLength: maxLength,
             decoration: InputDecoration(
-              contentPadding: EdgeInsets.only(left: 16),
+              contentPadding: const EdgeInsets.only(left: 16),
               counterText: "",
               border: const OutlineInputBorder(),
               hintStyle: Theme.of(context)
@@ -43,8 +46,8 @@ class CustomTextField extends StatelessWidget {
               if (value == null || value.isEmpty) {
                 return "Field is empty";
               }
-              if(value.length == 22){
-                return 'Max no. of characters entered';
+              if(value.length > maxLength){
+                return 'Max. number of characters';
               }
               return null;
             },

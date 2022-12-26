@@ -40,7 +40,8 @@ class DatabaseManager {
             conflictAlgorithm: ConflictAlgorithm.replace);
       }
     } on DatabaseException catch (e) {
-      developer.log('Failed saving avatar image data to Sqlite database ${e.result}');
+      developer.log(
+          'Failed saving avatar image data to Sqlite database ${e.result}');
     }
 
     return avatars.length;
@@ -53,5 +54,11 @@ class DatabaseManager {
     savedAvatar = List.generate(
         maps.length, (index) => SavedAvatar.fromMap(map: maps[index])).toList();
     return savedAvatar;
+  }
+
+  Future<int> deleteAvatar({required String avatarKey}) async {
+    _database = await initDatabase();
+    return await _database!
+        .delete(_table, where: '$_column1=?', whereArgs: [avatarKey]);
   }
 }

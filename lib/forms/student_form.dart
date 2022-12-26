@@ -28,10 +28,13 @@ class _StudentFormState extends State<StudentForm> {
   void initState() {
     dropDowns = [
       CustomDropDown(
-        name: "gender",
+        name: "Gender",
+        hintText: 'gender',
         values: Gender.values.map((e) => e.toText()).toList(),
       ),
-      CustomDropDown(name: "house", values: houses),
+      CustomDropDown(name: "house",
+          hintText: 'House',
+          values: houses),
     ];
     super.initState();
   }
@@ -44,7 +47,6 @@ class _StudentFormState extends State<StudentForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomTextField(
-
               name: 'name',
               hintText:
                   'Enter student name ${(widget.index + 1).toString()}'),

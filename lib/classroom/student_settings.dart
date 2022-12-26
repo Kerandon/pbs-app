@@ -1,24 +1,12 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/classroom/class_room_main.dart';
-import 'package:pbs_app/data/houses.dart';
-import 'package:pbs_app/forms/custom_dropdown.dart';
-import 'package:pbs_app/forms/custom_text_field.dart';
 import 'package:pbs_app/models/student.dart';
-import 'package:pbs_app/state/simple_providers.dart';
-import 'package:pbs_app/utils/enums/gender.dart';
-import 'package:pbs_app/utils/methods/generate_avatar.dart';
-
+import 'package:pbs_app/utils/methods/avatar_methods.dart';
 import '../app/components/avatar_image.dart';
 import '../app/components/confirmation_box.dart';
 import '../app/components/loading_helper.dart';
-import '../forms/custom_number_field.dart';
 import '../forms/student_settings_form.dart';
 import '../utils/constants.dart';
 import '../utils/methods/image_picker.dart';
@@ -88,9 +76,9 @@ class _StudentSettingsState extends State<StudentSettings> {
                 child: ListView(
                   children: [
                     Padding(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        'Student avatar',
+                        'Change student avatar',
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                     ),
@@ -115,12 +103,16 @@ class _StudentSettingsState extends State<StudentSettings> {
                                   showDialog(
                                     context: context,
                                     builder: (context) => ConfirmationBox(
-                                      title: 'Generate New Robot Image?',
+                                      title: 'Generate New Robo-Avatar?',
                                       voidCallBack: () {
                                         Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder: (context) => LoadingHelper(
                                               onFutureComplete: () {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(const SnackBar(
+                                                        content: Text(
+                                                            'Avatar updated')));
                                                 Navigator.of(context)
                                                     .pushAndRemoveUntil(
                                                         MaterialPageRoute(
@@ -140,7 +132,7 @@ class _StudentSettingsState extends State<StudentSettings> {
                                     ),
                                   );
                                 },
-                                child: const Text('Regenerate'),
+                                child: const Text('New Robo-Avatar'),
                               ),
                             ),
                             const Expanded(
@@ -152,32 +144,33 @@ class _StudentSettingsState extends State<StudentSettings> {
                                 onPressed: () async {
                                   final result = await pickImage();
                                   if (result != null) {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => LoadingHelper(
-                                          onFutureComplete: () {
-                                            Navigator.of(context)
-                                                .pushAndRemoveUntil(
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          StudentSettings(
-                                                              student: widget
-                                                                  .student),
-                                                    ),
-                                                    (route) => false);
-                                          },
-                                          future: saveFileImage(
-                                              file: result,
-                                              student: widget.student,
-                                              ref: ref),
-                                        ),
-                                      ),
-                                    );
+                                    if (mounted) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => LoadingHelper(
+                                            onFutureComplete: () {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(const SnackBar(
+                                                      content: Text(
+                                                          'Avatar updated')));
 
-                                    saveFileImage(
-                                        file: result,
-                                        student: widget.student,
-                                        ref: ref);
+                                              Navigator.of(context)
+                                                  .pushReplacement(
+                                                      MaterialPageRoute(
+                                                builder: (context) =>
+                                                    StudentSettings(
+                                                        student:
+                                                            widget.student),
+                                              ));
+                                            },
+                                            future: saveFileImage(
+                                                file: result,
+                                                student: widget.student,
+                                                ref: ref),
+                                          ),
+                                        ),
+                                      );
+                                    }
                                   }
                                 },
                                 child: const Text('Pick Custom'),
@@ -192,9 +185,9 @@ class _StudentSettingsState extends State<StudentSettings> {
                       child: Divider(),
                     ),
                     Padding(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        'Student details',
+                        'Change student details',
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                     ),

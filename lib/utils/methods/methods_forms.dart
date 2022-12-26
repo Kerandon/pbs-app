@@ -4,7 +4,10 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/models/student.dart';
 import 'package:pbs_app/utils/constants.dart';
-import 'generate_avatar.dart';
+import 'avatar_methods.dart';
+import 'dart:typed_data';
+import '../../state/simple_providers.dart';
+import 'dart:developer' as developer;
 
 List<Student> getStudentsFromForm(
     {required List<GlobalKey<FormBuilderState>> formKeys, String? classRoom}) {
@@ -35,14 +38,75 @@ Future<dynamic> addStudentsToFirebase(
         .set(
       {
         kGender: s.gender.name,
-        kHouse : s.house,
-        kClassroom : s.classRoom,
-        kPoints : 0,
-        kPresent : true
+        kHouse: s.house,
+        kClassroom: s.classRoom,
+        kPoints: 0,
+        kPresent: true
       },
     );
     await generateAvatar(student: s, ref: ref);
   }
 
   return 1;
+}
+
+Future<int?> updateStudentDetails(
+    {required Student student,
+    required GlobalKey<FormBuilderState> formKey,
+    required WidgetRef ref}) async {
+  final documentReference = FirebaseFirestore.instance
+      .collection(kCollectionClassrooms)
+      .doc('B1')
+      .collection(kCollectionStudents)
+      .doc(student.name);
+
+  final value = formKey.currentState!.value;
+  Uint8List bytes;
+  String formName = value[kName];
+  if (student.name != formName) {
+    String avatarKeyCurrent = '${student.classRoom}_${student.name}';
+
+    bytes = ref
+        .read(avatarProvider)
+        .firstWhere((element) => element.avatarKey == avatarKeyCurrent)
+        .bytes;
+
+    try {
+      await FirebaseFirestore.instance
+          .collection(kCollectionClassrooms)
+          .doc('B1')
+          .collection(kCollectionStudents)
+          .doc(formName)
+          .set({
+        kGender: value[kGender],
+        kClassroom: 'B1',
+        kHouse: value[kHouse],
+        kPoints: int.parse(value[kPoints]),
+        kPresent: value[kPresent] == 'Present' ? true : false
+      }).then((value) async {
+        await documentReference.delete();
+      });
+    } on FirebaseException catch (e) {
+      developer.log(e.message!);
+      return null;
+    }
+
+    String avatarKeyNew = 'B1_$formName';
+    await saveImageData(bytes: bytes, avatarKey: avatarKeyNew, ref: ref);
+  } else {
+    try {
+      await documentReference.set({
+        'gender': value[kGender],
+        'classroom': 'B1',
+        'house': value[kHouse],
+        'points': int.parse(value[kPoints]),
+        'present': value[kPresent] == 'Present' ? true : false
+      });
+    } on FirebaseException catch (e) {
+      developer.log(e.message!);
+      return null;
+    }
+  }
+
+  return 200;
 }

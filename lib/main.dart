@@ -58,7 +58,7 @@ class PBSApp extends ConsumerWidget {
                 if (snapshot.hasError) {
                   return const ErrorPage();
                 } else {
-                  return const LoadingPage();
+                  return const LoadingPage(text1: 'Preparing the classroom',);
                 }
               }
           ) : ClassRoomMain()

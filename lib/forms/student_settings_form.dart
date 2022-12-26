@@ -1,18 +1,20 @@
-
-import 'dart:typed_data';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:pbs_app/classroom/class_room_main.dart';
+import 'package:pbs_app/classroom/student_settings.dart';
 
+import '../app/components/loading_helper.dart';
 import '../data/houses.dart';
 import '../models/student.dart';
-import '../state/simple_providers.dart';
+
 import '../utils/constants.dart';
 import '../utils/enums/gender.dart';
+
+import '../utils/methods/methods_forms.dart';
+
 import 'custom_dropdown.dart';
+
 import 'custom_number_field.dart';
 import 'custom_text_field.dart';
 
@@ -36,14 +38,6 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    getValues() {
-      final validated = _formKey.currentState!.isValid;
-      if (validated) {
-        _formKey.currentState!.save();
-        updateStudentDetails();
-      }
-    }
-
     return FormBuilder(
       key: _formKey,
       child: SingleChildScrollView(
@@ -62,7 +56,7 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
             ),
             CustomDropDown(
               name: kPresent,
-              values: ["Present", "Absent"],
+              values: const ["Present", "Absent"],
               initialValue: widget.student.present ? "Present" : "Absent",
             ),
             Row(
@@ -71,12 +65,17 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
               children: [
                 Expanded(
                   flex: 2,
-                  child: Align(alignment:
-                  Alignment.centerLeft,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: const EdgeInsets.only(top: 16, left: 16),
-                      child: Text('Points', style: Theme.of(context).textTheme.headlineSmall,),
-                    ),),),
+                      child: Text(
+                        'Points',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                    ),
+                  ),
+                ),
                 Expanded(
                   child: CustomNumberField(
                     name: kPoints,
@@ -90,7 +89,33 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
             ),
             ElevatedButton(
                 onPressed: () {
-                  getValues();
+                  final validated = _formKey.currentState!.isValid;
+                  if (validated) {
+                    _formKey.currentState!.save();
+                    final futureDetails = updateStudentDetails(
+                        student: widget.student, formKey: _formKey, ref: ref);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => LoadingHelper(
+                          future: futureDetails,
+                          onFutureComplete: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Student details updated'),
+                              ),
+                            );
+
+                            Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        StudentSettings(student: widget.student)),
+                                (route) => false);
+                          },
+                        ),
+                      ),
+                    );
+                  }
                 },
                 child: const Text('Submit Changes'))
           ],
@@ -98,58 +123,4 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
       ),
     );
   }
-
-
-
-updateStudentDetails(){
-
-
-  final documentReference = FirebaseFirestore.instance
-      .collection(kCollectionClassrooms)
-      .doc('B1')
-      .collection(kCollectionStudents)
-      .doc(widget.student.name);
-
-  final value = _formKey.currentState!.value;
-  Uint8List imageBytes;
-  String formName = value[kName];
-  if (widget.student.name != formName) {
-    print('NAME CHANGED');
-
-    FirebaseFirestore.instance
-        .collection(kCollectionClassrooms)
-        .doc('B1')
-        .collection(kCollectionStudents)
-        .doc(formName)
-        .set({
-      kGender: value[kGender],
-      kClassroom: 'B1',
-      kHouse: value[kHouse],
-      kPoints: value[kPoints],
-      kPresent: value[kPresent]
-    });
-
-    String avatarKey =
-        '${widget.student.classRoom}_${widget.student.name}';
-    imageBytes = ref
-        .read(avatarProvider)
-        .firstWhere((element) => element.avatarKey == avatarKey)
-        .bytes;
-    FirebaseStorage.instance
-        .ref('$kAvatarsBucket/${widget.student.classRoom}_$formName')
-        .putData(imageBytes);
-  } else {
-    print('name not chnged');
-  }
-
-  documentReference.set({
-    'gender': value[kGender],
-    'classroom': 'B1',
-    'house': value[kHouse],
-    'points': int.parse(value[kPoints]),
-    'present': value[kPresent] == 'Present' ? true : false
-  });
 }
-
-
-  }

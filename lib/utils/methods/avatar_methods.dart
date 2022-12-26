@@ -43,3 +43,42 @@ Future<Uint8List?> generateAvatar(
   }
   return null;
 }
+
+Future<int> saveImageData(
+    {required Uint8List bytes,
+    required String avatarKey,
+    required WidgetRef ref}) async {
+  try {
+    await FirebaseStorage.instance
+        .ref('$kAvatarsBucket/$avatarKey')
+        .putData(bytes);
+  } on FirebaseException catch (e) {
+    developer.log(e.message!);
+    return 400;
+  }
+  await DatabaseManager().insertAvatars(
+      avatars: [SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
+
+  ref
+      .read(avatarProvider)
+      .addAll([SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
+  return 200;
+}
+
+Future<int> removeImageData(
+    {required Uint8List bytes,
+    required String avatarKey,
+    required WidgetRef ref}) async {
+  try {
+    await FirebaseStorage.instance.ref('$kAvatarsBucket/$avatarKey').delete();
+  } on FirebaseException catch (e) {
+    developer.log(e.message!);
+    return 400;
+  }
+  await DatabaseManager().deleteAvatar(avatarKey: avatarKey);
+
+  ref
+      .read(avatarProvider)
+      .removeWhere((element) => element.avatarKey == avatarKey);
+  return 200;
+}

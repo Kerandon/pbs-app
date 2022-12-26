@@ -7,7 +7,6 @@ import 'package:pbs_app/classroom/student_settings.dart';
 import '../app/components/confirmation_box.dart';
 import '../models/student.dart';
 import '../utils/constants.dart';
-import 'dart:math' as math;
 
 import '../utils/methods/clear_points.dart';
 
@@ -161,7 +160,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                   Expanded(
                                     child: IconButton(
                                       onPressed: () {
-                                        Navigator.of(context).push(
+                                        Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
                                             builder: (context) =>
                                                 StudentSettings(
@@ -197,6 +196,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                                         context: context,
                                                         builder: (context) =>
                                                             LoadingHelper(
+                                                              text1: "Clearing points",
                                                                 future:
                                                                     clearPointsFuture));
                                                   },

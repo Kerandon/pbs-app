@@ -8,10 +8,13 @@ class LoadingHelper extends StatefulWidget {
     super.key,
     required this.future,
     this.onFutureComplete,
+    this.text1,
+    this.text2,
   });
 
   final Future<dynamic> future;
   final VoidCallback? onFutureComplete;
+  final String? text1, text2;
 
   @override
   State<LoadingHelper> createState() => _LoadingHelperState();
@@ -34,7 +37,7 @@ class _LoadingHelperState extends State<LoadingHelper> {
             await pop(context);
           });
         }
-        return const LoadingPage();
+        return LoadingPage(text1: widget.text1, text2: widget.text2,);
       },
     );
   }

@@ -4,17 +4,18 @@ import 'package:flutter/material.dart';
 class LoadingPage extends StatelessWidget {
   const LoadingPage({
     Key? key,
+    this.text1,
+    this.text2
   }) : super(key: key);
+
+  final String? text1, text2;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Material(
-          child: Container(
-            color: Colors.teal,
-            width: double.infinity,
-            height: double.infinity,
+          child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -24,8 +25,8 @@ class LoadingPage extends StatelessWidget {
                 AnimatedTextKit(
                   repeatForever: true,
                   animatedTexts: [
-                    TyperAnimatedText('Updating...'),
-                    TyperAnimatedText('Please wait a moment'),
+                    TyperAnimatedText(text1 ?? "Updating..."),
+                    TyperAnimatedText(text2 ?? "Just a moment"),
                   ],),
 
               ],
