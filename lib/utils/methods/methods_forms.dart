@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/models/student.dart';
-import 'package:pbs_app/utils/constants.dart';
+import 'package:pbs_app/configs/constants.dart';
 import 'avatar_methods.dart';
 import 'dart:typed_data';
 import '../../state/simple_providers.dart';
@@ -15,8 +15,6 @@ List<Student> getStudentsFromForm(
 
   for (var key in formKeys) {
     var value = key.currentState!.value;
-
-    print('value is ${value}');
 
     students.add(Student.fromForm(
       name: value[kName],
@@ -110,5 +108,22 @@ Future<int?> updateStudentDetails(
     }
   }
 
+  return 200;
+}
+
+Future<int> deleteStudents({required Set<Student> students}) async {
+  final studentCollection = FirebaseFirestore.instance
+      .collection(kCollectionClassrooms)
+      .doc('B1')
+      .collection(kCollectionStudents);
+
+  try {
+    for (var s in students) {
+      await studentCollection.doc(s.name).delete();
+    }
+  } on FirebaseException catch (e) {
+    developer.log(e.message!);
+    return 400;
+  }
   return 200;
 }

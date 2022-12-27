@@ -1,6 +1,8 @@
+import 'package:equatable/equatable.dart';
+
 import '../utils/enums/gender.dart';
 
-class Student {
+class Student extends Equatable {
   final String name;
   final Gender gender;
   final String house;
@@ -8,7 +10,7 @@ class Student {
   final bool present;
   final int points;
 
-  Student({
+  const Student({
     required this.name,
     required this.gender,
     required this.house,
@@ -59,4 +61,7 @@ class Student {
       points: json['points'],
     );
   }
+
+  @override
+  List<Object?> get props => [name];
 }

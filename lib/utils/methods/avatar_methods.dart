@@ -5,7 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:pbs_app/state/database_manager.dart';
 import 'package:pbs_app/models/avatar_image.dart';
-import 'package:pbs_app/utils/constants.dart';
+import 'package:pbs_app/configs/constants.dart';
 import 'dart:developer' as developer;
 
 import '../../state/simple_providers.dart';
@@ -56,8 +56,10 @@ Future<int> saveImageData(
     developer.log(e.message!);
     return 400;
   }
-  await DatabaseManager().insertAvatars(
-      avatars: [SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
+  if (appPlatform != AppPlatform.web) {
+    await DatabaseManager().insertAvatars(
+        avatars: [SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
+  }
 
   ref
       .read(avatarProvider)
@@ -75,7 +77,9 @@ Future<int> removeImageData(
     developer.log(e.message!);
     return 400;
   }
-  await DatabaseManager().deleteAvatar(avatarKey: avatarKey);
+  if (appPlatform != AppPlatform.web) {
+    await DatabaseManager().deleteAvatar(avatarKey: avatarKey);
+  }
 
   ref
       .read(avatarProvider)

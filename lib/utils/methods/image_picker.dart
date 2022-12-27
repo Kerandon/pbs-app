@@ -15,11 +15,10 @@ Future<File?> pickImage() async {
     final image = await ImagePicker()
         .pickImage(source: ImageSource.gallery, imageQuality: 30);
     if (image != null) {
-      print('image not null ${image.path}');
       return File(image.path);
     }
   } on PlatformException catch (e) {
-    print('Failed to pick image ${e.message}');
+    developer.log(e.message!);
   }
   return null;
 }

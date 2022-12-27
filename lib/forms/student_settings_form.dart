@@ -6,7 +6,7 @@ import 'package:pbs_app/utils/enums/attendance.dart';
 import '../app/components/loading_helper.dart';
 import '../data/houses.dart';
 import '../models/student.dart';
-import '../utils/constants.dart';
+import '../configs/constants.dart';
 import '../utils/enums/gender.dart';
 import '../utils/methods/methods_forms.dart';
 import 'custom_dropdown.dart';
@@ -37,10 +37,6 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
     newValueStates.addAll({name: isNew});
 
     _haveNewValue = newValueStates.entries.any((element) => element.value);
-
-    for(var v in newValueStates.entries){
-      print('${v.key} and ${v.value}');
-    }
 
     setState(() {});
   }

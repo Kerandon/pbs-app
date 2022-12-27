@@ -8,7 +8,7 @@ import '../app/components/avatar_image.dart';
 import '../app/components/confirmation_box.dart';
 import '../app/components/loading_helper.dart';
 import '../forms/student_settings_form.dart';
-import '../utils/constants.dart';
+import '../configs/constants.dart';
 import '../utils/methods/image_picker.dart';
 
 class StudentSettings extends StatefulWidget {
@@ -62,7 +62,7 @@ class _StudentSettingsState extends State<StudentSettings> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ClassRoomMain(),
+                        builder: (context) => const ClassroomMain(),
                       ),
                     );
                   },

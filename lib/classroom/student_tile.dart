@@ -4,7 +4,7 @@ import 'package:pbs_app/classroom/student_dashboard.dart';
 
 import '../app/components/avatar_image.dart';
 import '../models/student.dart';
-import '../utils/constants.dart';
+import '../configs/constants.dart';
 
 class StudentTile extends StatefulWidget {
   const StudentTile({

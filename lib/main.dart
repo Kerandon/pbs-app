@@ -53,7 +53,7 @@ class PBSApp extends ConsumerWidget {
                 if (snapshot.hasData) {
                   final avatarState = ref.read(avatarProvider);
                   avatarState.addAll(snapshot.data!);
-                  return const ClassRoomMain();
+                  return const ClassroomMain();
                 }
                 if (snapshot.hasError) {
                   return const ErrorPage();
@@ -61,7 +61,7 @@ class PBSApp extends ConsumerWidget {
                   return const LoadingPage(text1: 'Preparing the classroom',);
                 }
               }
-          ) : ClassRoomMain()
+          ) : const ClassroomMain()
     );
   }
 }

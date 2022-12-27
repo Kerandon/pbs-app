@@ -21,26 +21,23 @@ class CustomNumberField extends StatelessWidget {
     return Stack(
       children: [
         FormBuilderTextField(
-          onChanged: (value){
-            if(value != initialValue){
+          onChanged: (value) {
+            if (value != initialValue) {
               newValueEntered?.call(true);
-            }else{
+            } else {
               newValueEntered?.call(false);
             }
           },
           textAlign: TextAlign.center,
-
           initialValue: initialValue,
           keyboardType: TextInputType.number,
           maxLength: 3,
-
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-
           decoration: InputDecoration(
             counterText: "",
             helperText: "",
             contentPadding: EdgeInsets.zero,
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
             hintStyle: Theme.of(context)
                 .textTheme
                 .displaySmall!
@@ -55,14 +52,13 @@ class CustomNumberField extends StatelessWidget {
             if (value == null || value.isEmpty) {
               return "";
             }
-            if(value.length > 3){
+            if (value.length > 3) {
               return "";
             }
             return null;
           },
           style: Theme.of(context).textTheme.displaySmall,
           autovalidateMode: AutovalidateMode.onUserInteraction,
-
         ),
       ],
     );

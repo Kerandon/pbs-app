@@ -27,7 +27,6 @@ class _LoadingHelperState extends State<LoadingHelper> {
       future: widget.future,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          print('data is ${snapshot.data.toString()}');
           if (snapshot.hasError) {
             return const ErrorPage();
           }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../classroom/student_crown.dart';
 import '../../models/student.dart';
-import '../../utils/constants.dart';
+import '../../configs/constants.dart';
 
 class CrownWidget extends StatefulWidget {
   const CrownWidget({Key? key, required this.student}) : super(key: key);
@@ -60,7 +60,10 @@ class _CrownWidgetState extends State<CrownWidget> {
               _showCrown = false;
             }
           }
-          setState(() {});
+          if(mounted) {
+            setState(() {});
+          }
+
         });
 
         return _showCrown ? const StudentCrown() : const SizedBox();

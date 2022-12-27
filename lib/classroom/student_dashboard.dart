@@ -6,7 +6,7 @@ import 'package:pbs_app/app/components/loading_helper.dart';
 import 'package:pbs_app/classroom/student_settings.dart';
 import '../app/components/confirmation_box.dart';
 import '../models/student.dart';
-import '../utils/constants.dart';
+import '../configs/constants.dart';
 
 import '../utils/methods/clear_points.dart';
 
@@ -196,7 +196,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                                         context: context,
                                                         builder: (context) =>
                                                             LoadingHelper(
-                                                              text1: "Clearing points",
+                                                                text1:
+                                                                    "Clearing points",
                                                                 future:
                                                                     clearPointsFuture));
                                                   },

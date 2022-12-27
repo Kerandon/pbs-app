@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:pbs_app/configs/constants.dart';
 import '../data/houses.dart';
 import '../utils/enums/gender.dart';
 import 'custom_dropdown.dart';
@@ -9,13 +10,13 @@ class StudentForm extends StatefulWidget {
   const StudentForm({
     super.key,
     required this.index,
-    this.removeDivider = false,
     required this.formKey,
+    this.isValidated,
   });
 
   final int index;
-  final bool removeDivider;
   final GlobalKey<FormBuilderState> formKey;
+  final Function(bool isValidated)? isValidated;
 
   @override
   State<StudentForm> createState() => _StudentFormState();
@@ -24,18 +25,42 @@ class StudentForm extends StatefulWidget {
 class _StudentFormState extends State<StudentForm> {
   late final List<CustomDropDown> dropDowns;
 
+
+  final Map<String, bool> _validatorTracker = {};
+
+  _updateValidator({required String name, required bool isValidated}){
+    _validatorTracker.addAll({name : isValidated});
+
+    if(_validatorTracker.entries.every((element) => element.value)){
+      widget.isValidated?.call(true);
+    }else{
+      widget.isValidated?.call(false);
+    }
+  }
+
   @override
   void initState() {
     dropDowns = [
       CustomDropDown(
-        name: "Gender",
+        name: kGender,
         hintText: 'Gender',
         values: Gender.values.map((e) => e.toText()).toList(),
+        isValidated: (isValid){
+          _updateValidator(name: kGender, isValidated: isValid);
+        },
       ),
-      CustomDropDown(name: "house",
+      CustomDropDown(name: kHouse,
           hintText: 'House',
-          values: houses),
+          values: houses,
+        isValidated: (isValid){
+          _updateValidator(name: kHouse, isValidated: isValid);
+        },
+      ),
     ];
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _validatorTracker.addAll({kName : false, kGender : false, kHouse : false});
+    });
+
     super.initState();
   }
 
@@ -46,21 +71,22 @@ class _StudentFormState extends State<StudentForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(children: [
+            const Icon(Icons.person, color: Colors.blue,),
+            const SizedBox(width: 8,),
+            Text('New student #${widget.index + 1}', style: Theme.of(context).textTheme.headlineSmall,)
+          ],),
+          const SizedBox(height: 2,),
           CustomTextField(
+            isValid: (isValid){
+              _updateValidator(name: 'name', isValidated: isValid);
+            },
               name: 'name',
               hintText:
-                  'Enter student name ${(widget.index + 1).toString()}'),
+                  'Name'),
           Column(
             children: dropDowns,
           ),
-          widget.removeDivider
-              ? const SizedBox()
-              : const Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Divider(
-                    thickness: 1,
-                  ),
-              ),
         ],
       ),
     );
