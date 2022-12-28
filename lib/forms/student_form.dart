@@ -78,7 +78,7 @@ class _StudentFormState extends State<StudentForm> {
           ],),
           const SizedBox(height: 2,),
           CustomTextField(
-            isValid: (isValid){
+            isValidated: (isValid){
               _updateValidator(name: 'name', isValidated: isValid);
             },
               name: 'name',

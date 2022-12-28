@@ -4,6 +4,7 @@ import 'package:pbs_app/app/components/avatar_image.dart';
 import 'package:pbs_app/app/components/confirmation_box.dart';
 import 'package:pbs_app/app/components/loading_helper.dart';
 import 'package:pbs_app/app/components/loading_page.dart';
+import 'package:pbs_app/classroom/class_room_main.dart';
 import 'package:pbs_app/configs/constants.dart';
 
 import '../models/student.dart';
@@ -41,7 +42,12 @@ class _RemoveStudentsPageState extends State<RemoveStudentsPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: IconButton(onPressed: (){
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ClassroomMain()));
+
+        }, icon: Icon(Icons.arrow_back)),
+      ),
       body: StreamBuilder(
         stream: _studentStream,
         builder: (BuildContext context,
@@ -125,13 +131,13 @@ class _RemoveStudentsPageState extends State<RemoveStudentsPage> {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(const SnackBar(
                                                         content: Text(
-                                                            'Students removed')));
+                                                            'Students removed'),),);
 
                                                 Navigator.pushReplacement(
                                                     context,
                                                     MaterialPageRoute(
                                                         builder: (context) =>
-                                                            const RemoveStudentsPage()));
+                                                            const RemoveStudentsPage(),),);
                                               },
                                             ),
                                           ),

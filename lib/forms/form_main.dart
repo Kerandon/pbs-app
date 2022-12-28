@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:pbs_app/app/components/loading_helper.dart';
-import 'package:pbs_app/classroom/class_room_main.dart';
+import 'package:pbs_app/forms/custom_text_field.dart';
 import 'package:pbs_app/utils/enums/form_types.dart';
 import 'package:pbs_app/forms/student_form.dart';
 import 'package:pbs_app/utils/methods/methods_forms.dart';
@@ -11,9 +10,13 @@ class FormMain extends ConsumerStatefulWidget {
   const FormMain({
     Key? key,
     required this.formType,
+    required this.title,
+    required this.onExitPage,
   }) : super(key: key);
 
   final FormType formType;
+  final String title;
+  final VoidCallback onExitPage;
 
   @override
   ConsumerState<FormMain> createState() => _FormMainState();
@@ -71,7 +74,11 @@ class _FormMainState extends ConsumerState<FormMain> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add students'),
+        leading: IconButton(
+          onPressed: widget.onExitPage,
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: Text(widget.title),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: size.width * 0.05),
@@ -117,6 +124,18 @@ class _FormMainState extends ConsumerState<FormMain> {
                     )
                   ],
                 );
+              } else if (widget.formType == FormType.classroom) {
+                return FormBuilder(
+                  key: _formKeys[index],
+                  child: CustomTextField(
+                    name: 'class $_numberOfForms',
+                    hintText: 'Classroom #${index + 1}',
+                    isValidated: (isValidated) {
+                      _addFormToValidatorTracker(
+                          index: index, isValidated: isValidated);
+                    },
+                  ),
+                );
               }
               return null;
             }
@@ -128,36 +147,18 @@ class _FormMainState extends ConsumerState<FormMain> {
                           for (var w in _formKeys) {
                             w.currentState!.saveAndValidate();
                           }
-                          final students =
-                              getStudentsFromForm(formKeys: _formKeys);
-
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => LoadingHelper(
-                                future: addStudentsToFirebase(
-                                    students: students, ref: ref),
-                                onFutureComplete: () {
-                                  String message = 'Student added';
-                                  if (_numberOfForms > 1) {
-                                    message = 'Student\'s added';
-                                  }
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(message),
-                                    ),
-                                  );
-
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const ClassroomMain(),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          );
+                          if (widget.formType == FormType.classroom) {
+                            formSubmittedClassrooms(
+                                context: context,
+                                formKeys: _formKeys,
+                                ref: ref);
+                          }
+                          if (widget.formType == FormType.student) {
+                            formSubmittedStudents(
+                                context: context,
+                                ref: ref,
+                                formKeys: _formKeys);
+                          }
                         }
                       }
                     : null,

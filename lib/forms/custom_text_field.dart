@@ -8,14 +8,14 @@ class CustomTextField extends StatelessWidget {
     this.hintText,
     this.initialValue,
     this.newValueEntered,
-    this.isValid,
+    this.isValidated,
   });
 
   final String? hintText;
   final String? initialValue;
   final String name;
   final Function(bool)? newValueEntered;
-  final Function(bool)? isValid;
+  final Function(bool)? isValidated;
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +33,10 @@ class CustomTextField extends StatelessWidget {
                 } else {
                   newValueEntered?.call(false);
                 }
-                if (value!.isNotEmpty && value.length < 23) {
-                  isValid?.call(true);
+                if (value!.isNotEmpty && value.length < 12) {
+                  isValidated?.call(true);
                 } else {
-                  isValid?.call(false);
+                  isValidated?.call(false);
                 }
               },
               initialValue: initialValue,
@@ -50,15 +50,6 @@ class CustomTextField extends StatelessWidget {
                 hintText: hintText,
               ),
               name: name,
-              // validator: (value) {
-              //   if (value == null || value.isEmpty) {
-              //     return "";
-              //   }
-              //   if(value.length > maxLength){
-              //     return "";
-              //   }
-              //   return null;
-              // },
               style: Theme.of(context).textTheme.displaySmall,
               autovalidateMode: AutovalidateMode.onUserInteraction),
         ),

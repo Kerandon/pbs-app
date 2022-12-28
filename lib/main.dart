@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/configs/app_theme.dart';
+import 'package:pbs_app/home_page.dart';
 import 'package:pbs_app/state/database_manager.dart';
 import 'package:pbs_app/state/simple_providers.dart';
 import 'package:pbs_app/utils/enums/platforms.dart';
@@ -53,7 +54,7 @@ class PBSApp extends ConsumerWidget {
                 if (snapshot.hasData) {
                   final avatarState = ref.read(avatarProvider);
                   avatarState.addAll(snapshot.data!);
-                  return const ClassroomMain();
+                  return const HomePage();
                 }
                 if (snapshot.hasError) {
                   return const ErrorPage();
@@ -61,7 +62,7 @@ class PBSApp extends ConsumerWidget {
                   return const LoadingPage(text1: 'Preparing the classroom',);
                 }
               }
-          ) : const ClassroomMain()
+          ) : const HomePage()
     );
   }
 }

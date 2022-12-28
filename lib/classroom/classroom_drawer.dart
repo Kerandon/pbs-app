@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:pbs_app/classroom/class_room_main.dart';
 import 'package:pbs_app/classroom/remove_students_page.dart';
 import '../forms/form_main.dart';
 import '../utils/enums/form_types.dart';
@@ -24,8 +25,16 @@ class ClassroomDrawer extends ConsumerWidget {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const FormMain(
+                  builder: (context) => FormMain(
                     formType: FormType.student,
+                    title: 'Add students',
+                    onExitPage: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => ClassroomMain(),
+                        ),
+                      );
+                    },
                   ),
                 ),
               );
