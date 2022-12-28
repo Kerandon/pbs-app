@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:pbs_app/classroom/class_room_main.dart';
-import 'package:pbs_app/classroom/remove_students_page.dart';
+import 'package:pbs_app/classroom/classroom_main.dart';
+import 'package:pbs_app/classroom/remove_students.dart';
 import '../forms/form_main.dart';
 import '../utils/enums/form_types.dart';
 

@@ -7,7 +7,7 @@ import 'package:pbs_app/home_page.dart';
 import 'package:pbs_app/models/student.dart';
 import 'package:pbs_app/configs/constants.dart';
 import '../../app/components/loading_helper.dart';
-import '../../classroom/class_room_main.dart';
+import '../../classroom/classroom_main.dart';
 import 'avatar_methods.dart';
 import 'dart:typed_data';
 import '../../state/simple_providers.dart';
@@ -136,6 +136,23 @@ Future<int?> updateStudentDetails(
   return 200;
 }
 
+Future<int> deleteClassrooms({required Set<String> classrooms}) async {
+  final classroomCollection =
+      await FirebaseFirestore.instance.collection(kCollectionClassrooms).get();
+
+  print('got classroomcollection $classroomCollection');
+  try {
+    for (var c in classroomCollection.docs) {
+      await c.reference.delete();
+      print('class room deleted');
+    }
+  } on FirebaseException catch (e) {
+    developer.log(e.message!);
+    return 400;
+  }
+  return 200;
+}
+
 Future<int> deleteStudents({required Set<Student> students}) async {
   final studentCollection = FirebaseFirestore.instance
       .collection(kCollectionClassrooms)
@@ -196,12 +213,9 @@ void formSubmittedClassrooms(
   }
 
   String message = 'Classroom added';
-  if(classrooms.length > 1){
+  if (classrooms.length > 1) {
     message = 'Classrooms added';
   }
-
-
-
 
   Navigator.of(context).pushReplacement(
     MaterialPageRoute(

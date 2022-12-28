@@ -33,20 +33,21 @@ class _LoadingHelperState extends State<LoadingHelper> {
 
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
             widget.onFutureComplete?.call();
-            await pop(context);
+            // await pop(context);
           });
         }
         return LoadingPage(text1: widget.text1, text2: widget.text2,);
       },
     );
   }
-
-  Future<void> pop(BuildContext context) async {
-    Builder(
-      builder: (context) {
-        Navigator.of(context).maybePop();
-        return const SizedBox();
-      },
-    );
-  }
 }
+
+//   Future<void> pop(BuildContext context) async {
+//     Builder(
+//       builder: (context) {
+//         Navigator.of(context).maybePop();
+//         return const SizedBox();
+//       },
+//     );
+//   }
+// }

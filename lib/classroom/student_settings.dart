@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:pbs_app/classroom/class_room_main.dart';
+import 'package:pbs_app/classroom/classroom_main.dart';
 import 'package:pbs_app/models/student.dart';
 import 'package:pbs_app/utils/methods/avatar_methods.dart';
 import '../app/components/avatar_image.dart';

@@ -8,7 +8,6 @@ import 'package:pbs_app/state/simple_providers.dart';
 import 'package:pbs_app/utils/enums/platforms.dart';
 import 'app/components/error_page.dart';
 import 'app/components/loading_page.dart';
-import 'classroom/class_room_main.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'utils/globals.dart';

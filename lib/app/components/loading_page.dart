@@ -25,7 +25,7 @@ class LoadingPage extends StatelessWidget {
                 AnimatedTextKit(
                   repeatForever: true,
                   animatedTexts: [
-                    TyperAnimatedText(text1 ?? "Updating..."),
+                    TyperAnimatedText(text1 ?? "Updating"),
                     TyperAnimatedText(text2 ?? "Just a moment"),
                   ],),
 

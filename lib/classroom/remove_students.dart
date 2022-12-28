@@ -4,7 +4,7 @@ import 'package:pbs_app/app/components/avatar_image.dart';
 import 'package:pbs_app/app/components/confirmation_box.dart';
 import 'package:pbs_app/app/components/loading_helper.dart';
 import 'package:pbs_app/app/components/loading_page.dart';
-import 'package:pbs_app/classroom/class_room_main.dart';
+import 'package:pbs_app/classroom/classroom_main.dart';
 import 'package:pbs_app/configs/constants.dart';
 
 import '../models/student.dart';
