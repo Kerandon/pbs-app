@@ -1,4 +1,4 @@
-enum ErrorType {
+enum TaskStatus {
 
   success,
   failFirebase,

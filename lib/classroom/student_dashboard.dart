@@ -4,9 +4,9 @@ import 'package:pbs_app/animations/slide_animation.dart';
 import 'package:pbs_app/app/components/avatar_image.dart';
 import 'package:pbs_app/app/components/loading_helper.dart';
 import 'package:pbs_app/classroom/student_settings.dart';
+import 'package:pbs_app/utils/firebase_properties.dart';
 import '../app/components/confirmation_box.dart';
 import '../models/student.dart';
-import '../configs/constants.dart';
 
 import '../utils/methods/clear_points.dart';
 
@@ -31,15 +31,15 @@ class _StudentDashboardState extends State<StudentDashboard> {
   void initState() {
     _firebaseInstance = FirebaseFirestore.instance;
     _documentReference = _firebaseInstance
-        .collection(kCollectionClassrooms)
-        .doc(widget.student.classRoom)
-        .collection(kCollectionStudents)
+        .collection(FirebaseProperties.collectionClassrooms)
+        .doc(widget.student.classroom)
+        .collection(FirebaseProperties.collectionStudents)
         .doc(widget.student.name);
 
     _studentStream = _firebaseInstance
-        .collection(kCollectionClassrooms)
-        .doc(widget.student.classRoom)
-        .collection(kCollectionStudents)
+        .collection(FirebaseProperties.collectionClassrooms)
+        .doc(widget.student.classroom)
+        .collection(FirebaseProperties.collectionStudents)
         .doc(widget.student.name)
         .snapshots();
 
@@ -113,10 +113,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                         child: ElevatedButton(
                                           onPressed: () async {
                                             await _firebaseInstance
-                                                .collection(
-                                                    kCollectionClassrooms)
-                                                .doc(widget.student.classRoom)
-                                                .collection(kCollectionStudents)
+                                                .collection(FirebaseProperties
+                                                    .collectionClassrooms)
+                                                .doc(widget.student.classroom)
+                                                .collection(FirebaseProperties
+                                                    .collectionStudents)
                                                 .doc(widget.student.name)
                                                 .update(
                                               {
@@ -176,37 +177,49 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                   ),
                                   Expanded(
                                     child: IconButton(
-                                      onPressed: () async {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return Builder(
-                                              builder: (context) {
-                                                late final Future
-                                                    clearPointsFuture =
-                                                    clearPoints(
-                                                        student:
-                                                            widget.student);
+                                      onPressed: _points > 0
+                                          ? () async {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return Builder(
+                                                    builder: (context) {
+                                                      late final Future
+                                                          clearPointsFuture =
+                                                          clearPoints(
+                                                              student: widget
+                                                                  .student);
 
-                                                return ConfirmationBox(
-                                                  title:
-                                                      'Clear ${widget.student.name}\'s points?',
-                                                  voidCallBack: () {
-                                                    showDialog(
-                                                        context: context,
-                                                        builder: (context) =>
-                                                            LoadingHelper(
+                                                      return ConfirmationBox(
+                                                        title:
+                                                            'Clear ${widget.student.name}\'s points?',
+                                                        voidCallBack: () {
+                                                          Navigator.of(context)
+                                                              .pushReplacement(
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  LoadingHelper(
+                                                                onFutureComplete:
+                                                                    (taskStatus) {
+                                                                  Navigator
+                                                                      .maybePop(
+                                                                          context);
+                                                                },
                                                                 text1:
                                                                     "Clearing points",
                                                                 future:
-                                                                    clearPointsFuture));
-                                                  },
-                                                );
-                                              },
-                                            );
-                                          },
-                                        );
-                                      },
+                                                                    clearPointsFuture,
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                              );
+                                            }
+                                          : null,
                                       icon: const Icon(Icons.refresh_outlined,
                                           color: Colors.white),
                                     ),

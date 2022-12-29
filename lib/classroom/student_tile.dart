@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pbs_app/classroom/student_dashboard.dart';
+import 'package:pbs_app/utils/firebase_properties.dart';
 
 import '../app/components/avatar_image.dart';
 import '../models/student.dart';
-import '../configs/constants.dart';
 
 class StudentTile extends StatefulWidget {
   const StudentTile({
@@ -27,9 +27,9 @@ class _StudentTileState extends State<StudentTile> {
   @override
   void initState() {
     _allStudentsStream = FirebaseFirestore.instance
-        .collection(kCollectionClassrooms)
-        .doc(widget.student.classRoom)
-        .collection(kCollectionStudents)
+        .collection(FirebaseProperties.collectionClassrooms)
+        .doc(widget.student.classroom)
+        .collection(FirebaseProperties.collectionStudents)
         .snapshots();
 
     super.initState();
@@ -83,7 +83,7 @@ class _StudentTileState extends State<StudentTile> {
                             style: Theme.of(context)
                                 .textTheme
                                 .displaySmall
-                                ?.copyWith(fontSize: 8),
+                                ?.copyWith(fontSize: 12),
                             textAlign: TextAlign.right,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -103,7 +103,7 @@ class _StudentTileState extends State<StudentTile> {
                                   style: Theme.of(context)
                                       .textTheme
                                       .displaySmall
-                                      ?.copyWith(fontSize: 8),
+                                      ?.copyWith(fontSize: 12),
                                   textAlign: TextAlign.center,
                                 ),
                               ),

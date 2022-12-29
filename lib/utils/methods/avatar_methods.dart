@@ -3,9 +3,10 @@ import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:pbs_app/utils/firebase_properties.dart';
 import 'package:pbs_app/state/database_manager.dart';
 import 'package:pbs_app/models/avatar_image.dart';
-import 'package:pbs_app/configs/constants.dart';
+import 'package:pbs_app/utils/enums/task_status.dart';
 import 'dart:developer' as developer;
 
 import '../../state/simple_providers.dart';
@@ -13,9 +14,9 @@ import '../globals.dart';
 import '../../models/student.dart';
 import '../enums/platforms.dart';
 
-Future<Uint8List?> generateAvatar(
+Future<TaskStatus> generateAvatar(
     {required Student student, required WidgetRef ref}) async {
-  final String avatarKey = '${student.classRoom}_${student.name}';
+  final String avatarKey = '${student.classroom}_${student.name}';
   final avatarState = ref.read(avatarProvider);
 
   final randomID = Random().nextInt(99999999);
@@ -25,7 +26,7 @@ Future<Uint8List?> generateAvatar(
   try {
     avatarState.addAll([SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
     final uploadTask = await FirebaseStorage.instance
-        .ref('$kAvatarsBucket/$avatarKey')
+        .ref('${FirebaseProperties.avatarsBucket}/$avatarKey')
         .putData(bytes);
     if (appPlatform != AppPlatform.web) {
       DatabaseManager().insertAvatars(
@@ -35,13 +36,14 @@ Future<Uint8List?> generateAvatar(
       );
     }
     if (uploadTask.state == TaskState.success) {
-      return bytes;
+      return TaskStatus.success;
     }
   } on FirebaseException catch (e) {
     developer
         .log('Cloud Firestore avatar image upload task failed ${e.message}');
+    return TaskStatus.failFirebase;
   }
-  return null;
+  return TaskStatus.success;
 }
 
 Future<int> saveImageData(
@@ -50,7 +52,7 @@ Future<int> saveImageData(
     required WidgetRef ref}) async {
   try {
     await FirebaseStorage.instance
-        .ref('$kAvatarsBucket/$avatarKey')
+        .ref('${FirebaseProperties.avatarsBucket}/$avatarKey')
         .putData(bytes);
   } on FirebaseException catch (e) {
     developer.log(e.message!);
@@ -72,7 +74,9 @@ Future<int> removeImageData(
     required String avatarKey,
     required WidgetRef ref}) async {
   try {
-    await FirebaseStorage.instance.ref('$kAvatarsBucket/$avatarKey').delete();
+    await FirebaseStorage.instance
+        .ref('${FirebaseProperties.avatarsBucket}/$avatarKey')
+        .delete();
   } on FirebaseException catch (e) {
     developer.log(e.message!);
     return 400;

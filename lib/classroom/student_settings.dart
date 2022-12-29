@@ -2,13 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/classroom/classroom_main.dart';
+import 'package:pbs_app/utils/app_messages.dart';
+import 'package:pbs_app/utils/firebase_properties.dart';
 import 'package:pbs_app/models/student.dart';
 import 'package:pbs_app/utils/methods/avatar_methods.dart';
+import 'package:pbs_app/utils/methods/route_methods.dart';
 import '../app/components/avatar_image.dart';
 import '../app/components/confirmation_box.dart';
 import '../app/components/loading_helper.dart';
 import '../forms/student_settings_form.dart';
-import '../configs/constants.dart';
+import '../utils/enums/task_status.dart';
 import '../utils/methods/image_picker.dart';
 
 class StudentSettings extends StatefulWidget {
@@ -23,18 +26,12 @@ class StudentSettings extends StatefulWidget {
 class _StudentSettingsState extends State<StudentSettings> {
   late final Future<QuerySnapshot<Map<String, dynamic>>> _classesFuture;
   late final FirebaseFirestore _firebase;
-  late final Stream<DocumentSnapshot> _studentStream;
 
   @override
   void initState() {
     _firebase = FirebaseFirestore.instance;
-    _classesFuture = _firebase.collection(kCollectionClassrooms).get();
-    _studentStream = _firebase
-        .collection(kCollectionClassrooms)
-        .doc(widget.student.classRoom)
-        .collection(kCollectionStudents)
-        .doc(widget.student.name)
-        .snapshots();
+    _classesFuture =
+        _firebase.collection(FirebaseProperties.collectionClassrooms).get();
     super.initState();
   }
 
@@ -42,163 +39,173 @@ class _StudentSettingsState extends State<StudentSettings> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return FutureBuilder(
-      future: _classesFuture,
-      builder: (BuildContext context,
-          AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
-        List<String> allClasses = [];
-        if (snapshot.hasData) {
-          for (var d in snapshot.data!.docs) {
-            allClasses.add(d.id);
+        future: _classesFuture,
+        builder: (BuildContext context,
+            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+          List<String> allClasses = [];
+          if (snapshot.hasData) {
+            for (var d in snapshot.data!.docs) {
+              allClasses.add(d.id);
+            }
           }
-        }
 
-        return StreamBuilder(
-          stream: _studentStream,
-          builder: (context, snapshot) {
-            return Scaffold(
-              appBar: AppBar(
-                leading: IconButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ClassroomMain(),
+          return Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ClassroomMain(
+                        classroom: widget.student.classroom,
                       ),
-                    );
-                  },
-                  icon: const Icon(Icons.arrow_back_outlined),
-                ),
-                title: const Text('Edit Student Profile'),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.arrow_back_outlined),
               ),
-              body: Padding(
-                padding: EdgeInsets.fromLTRB(size.width * 0.10,
-                    size.width * 0.02, size.width * 0.10, size.width * 0.02),
-                child: ListView(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'Student avatar',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
+              title: const Text('Edit Student Profile'),
+            ),
+            body: Padding(
+              padding: EdgeInsets.fromLTRB(size.width * 0.10, size.width * 0.02,
+                  size.width * 0.10, size.width * 0.02),
+              child: ListView(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      'Student avatar',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall!
+                          .copyWith(color: Colors.blue),
                     ),
-                    SizedBox(
-                      width: size.width * 0.80,
-                      height: size.height * 0.15,
-                      child: AvatarImage(
-                        student: widget.student,
-                      ),
+                  ),
+                  SizedBox(
+                    width: size.width * 0.80,
+                    height: size.height * 0.15,
+                    child: AvatarImage(
+                      student: widget.student,
                     ),
-                    SizedBox(
-                      width: size.width * 0.80,
-                      height: size.height * 0.08,
-                      child: Consumer(
-                        builder: (_, ref, __) => Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              flex: 10,
-                              child: OutlinedButton(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => ConfirmationBox(
-                                      title: 'Generate New Robo-Avatar?',
-                                      voidCallBack: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) => LoadingHelper(
-                                              onFutureComplete: () {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(const SnackBar(
-                                                        content: Text(
-                                                            'Avatar updated')));
-                                                Navigator.of(context)
-                                                    .pushAndRemoveUntil(
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                StudentSettings(
-                                                                    student: widget
-                                                                        .student)),
-                                                        (route) => false);
-                                              },
-                                              future: generateAvatar(
-                                                  student: widget.student,
-                                                  ref: ref),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  );
-                                },
-                                child: const Text('New Robo-Avatar'),
-                              ),
-                            ),
-                            const Expanded(
-                              child: SizedBox(),
-                            ),
-                            Expanded(
-                              flex: 10,
-                              child: OutlinedButton(
-                                onPressed: () async {
-                                  final result = await pickImage();
-                                  if (result != null) {
-                                    if (mounted) {
-                                      Navigator.of(context).push(
+                  ),
+                  SizedBox(
+                    width: size.width * 0.80,
+                    height: size.height * 0.08,
+                    child: Consumer(
+                      builder: (_, ref, __) => Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 10,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => ConfirmationBox(
+                                    title: 'Change Robo-Avatar?',
+                                    voidCallBack: () {
+                                      Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(
                                           builder: (context) => LoadingHelper(
-                                            onFutureComplete: () {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(const SnackBar(
-                                                      content: Text(
-                                                          'Avatar updated')));
+                                            onFutureComplete: (taskStatus) {
+                                              String snackbarMessage =
+                                                  'New robo-avatar generated';
 
-                                              Navigator.of(context)
-                                                  .pushReplacement(
-                                                      MaterialPageRoute(
-                                                builder: (context) =>
-                                                    StudentSettings(
-                                                        student:
-                                                            widget.student),
-                                              ));
+                                              if (taskStatus ==
+                                                  TaskStatus.failFirebase) {
+                                                snackbarMessage = AppMessages
+                                                    .kErrorFirebaseConnection;
+                                              }
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content:
+                                                      Text(snackbarMessage),
+                                                ),
+                                              );
+                                              pushReplacementRoute(
+                                                  context: context,
+                                                  destination: StudentSettings(
+                                                      student: widget.student));
                                             },
-                                            future: saveFileImage(
-                                                file: result,
+                                            future: generateAvatar(
                                                 student: widget.student,
                                                 ref: ref),
                                           ),
                                         ),
                                       );
-                                    }
-                                  }
-                                },
-                                child: const Text('Pick Custom'),
-                              ),
+                                    },
+                                  ),
+                                );
+                              },
+                              child: const Text('Change Robo-Avatar'),
                             ),
-                          ],
-                        ),
+                          ),
+                          const Expanded(
+                            child: SizedBox(),
+                          ),
+                          Expanded(
+                            flex: 10,
+                            child: OutlinedButton(
+                              onPressed: () async {
+                                final result = await pickImage();
+                                if (result != null) {
+                                  if (mounted) {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => LoadingHelper(
+                                          onFutureComplete: (taskStatus) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text('Avatar updated'),
+                                              ),
+                                            );
+
+                                            Navigator.of(context)
+                                                .pushReplacement(
+                                                    MaterialPageRoute(
+                                              builder: (context) =>
+                                                  StudentSettings(
+                                                      student: widget.student),
+                                            ));
+                                          },
+                                          future: saveFileImage(
+                                              file: result,
+                                              student: widget.student,
+                                              ref: ref),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              child: const Text('Pick Custom'),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.only(top: 16, bottom: 16),
-                      child: Divider(),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 16, bottom: 16),
+                    child: Divider(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      'Student details',
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: Colors.blue,
+                              ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'Student details',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                    ),
-                    StudentSettingsForm(student: widget.student),
-                  ],
-                ),
+                  ),
+                  StudentSettingsForm(student: widget.student),
+                ],
               ),
-            );
-          },
-        );
-      },
-    );
+            ),
+          );
+        });
   }
 }

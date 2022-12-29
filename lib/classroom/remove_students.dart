@@ -5,13 +5,15 @@ import 'package:pbs_app/app/components/confirmation_box.dart';
 import 'package:pbs_app/app/components/loading_helper.dart';
 import 'package:pbs_app/app/components/loading_page.dart';
 import 'package:pbs_app/classroom/classroom_main.dart';
-import 'package:pbs_app/configs/constants.dart';
-
+import 'package:pbs_app/utils/firebase_properties.dart';
 import '../models/student.dart';
 import '../utils/methods/methods_forms.dart';
 
 class RemoveStudentsPage extends StatefulWidget {
-  const RemoveStudentsPage({Key? key}) : super(key: key);
+  const RemoveStudentsPage({Key? key, required this.classroom})
+      : super(key: key);
+
+  final String classroom;
 
   @override
   State<RemoveStudentsPage> createState() => _RemoveStudentsPageState();
@@ -25,9 +27,9 @@ class _RemoveStudentsPageState extends State<RemoveStudentsPage> {
   @override
   void initState() {
     _studentStream = FirebaseFirestore.instance
-        .collection(kCollectionClassrooms)
+        .collection(FirebaseProperties.collectionClassrooms)
         .doc('B1')
-        .collection(kCollectionStudents)
+        .collection(FirebaseProperties.collectionStudents)
         .snapshots();
 
     super.initState();
@@ -43,10 +45,18 @@ class _RemoveStudentsPageState extends State<RemoveStudentsPage> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(onPressed: (){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ClassroomMain()));
-
-        }, icon: Icon(Icons.arrow_back)),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ClassroomMain(
+                    classroom: widget.classroom,
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.arrow_back)),
       ),
       body: StreamBuilder(
         stream: _studentStream,
@@ -127,17 +137,24 @@ class _RemoveStudentsPageState extends State<RemoveStudentsPage> {
                                               future: deleteStudents(
                                                 students: studentsToDelete,
                                               ),
-                                              onFutureComplete: () {
+                                              onFutureComplete: (error) {
                                                 ScaffoldMessenger.of(context)
-                                                    .showSnackBar(const SnackBar(
-                                                        content: Text(
-                                                            'Students removed'),),);
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        'Students removed'),
+                                                  ),
+                                                );
 
                                                 Navigator.pushReplacement(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            const RemoveStudentsPage(),),);
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        RemoveStudentsPage(
+                                                            classroom: widget
+                                                                .classroom),
+                                                  ),
+                                                );
                                               },
                                             ),
                                           ),

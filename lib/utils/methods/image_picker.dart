@@ -29,13 +29,13 @@ Future<int?> saveFileImage(
     required WidgetRef ref}) async {
   final bytes = await file.readAsBytes();
   TaskSnapshot? taskSnapshot;
-  final avatarKey = '${student.classRoom}_${student.name}';
+  final avatarKey = '${student.classroom}_${student.name}';
   final avatarState = ref.read(avatarProvider);
   avatarState.addAll([SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
 
   try {
     taskSnapshot = await FirebaseStorage.instance
-        .ref('${student.classRoom}_${student.name}')
+        .ref('${student.classroom}_${student.name}')
         .putData(bytes);
   } on FirebaseException catch (e) {
     developer.log(e.message!);

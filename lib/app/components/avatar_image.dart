@@ -28,7 +28,7 @@ class _AvatarImageState extends ConsumerState<AvatarImage> {
 
   @override
   void initState() {
-    _avatarKey = '${widget.student.classRoom}_${widget.student.name}';
+    _avatarKey = '${widget.student.classroom}_${widget.student.name}';
     _firebaseStorageFuture =
         FirebaseStorage.instance.ref().child('avatars/$_avatarKey').getData();
     super.initState();
@@ -55,7 +55,8 @@ class _AvatarImageState extends ConsumerState<AvatarImage> {
                   }
                   if (snapshot.hasData) {
                     _bytes = snapshot.data;
-                    avatarState.addAll([SavedAvatar(avatarKey: _avatarKey, bytes: _bytes!)]);
+                    avatarState.addAll(
+                        [SavedAvatar(avatarKey: _avatarKey, bytes: _bytes!)]);
 
                     if (appPlatform != AppPlatform.web) {
                       DatabaseManager().insertAvatars(avatars: [

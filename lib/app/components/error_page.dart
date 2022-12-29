@@ -18,15 +18,17 @@ class ErrorPage extends StatelessWidget {
             'Something went wrong...\n\nPlease check your internet connection',
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 100,),
-          ElevatedButton(onPressed: (){
-
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const PBSApp()),
+          const SizedBox(
+            height: 100,
+          ),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PBSApp()),
                     (route) => false);
-
-          }, child: const Text('Restart'))
+              },
+              child: const Text('Restart'))
         ],
       ),
     );

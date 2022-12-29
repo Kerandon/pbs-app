@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pbs_app/app/components/confirmation_box.dart';
 import 'package:pbs_app/app/components/loading_helper.dart';
 import 'package:pbs_app/app/components/loading_page.dart';
-import 'package:pbs_app/configs/constants.dart';
+import 'package:pbs_app/utils/firebase_properties.dart';
 import 'package:pbs_app/home_page.dart';
 import '../utils/methods/methods_forms.dart';
 
@@ -22,7 +22,7 @@ class _RemoveClassroomsState extends State<RemoveClassrooms> {
   @override
   void initState() {
     _classroomStream = FirebaseFirestore.instance
-        .collection(kCollectionClassrooms)
+        .collection(FirebaseProperties.collectionClassrooms)
         .snapshots();
 
     super.initState();
@@ -40,10 +40,10 @@ class _RemoveClassroomsState extends State<RemoveClassrooms> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
-              Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (context) => HomePage()));
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const HomePage()));
             },
-            icon: Icon(Icons.arrow_back)),
+            icon: const Icon(Icons.arrow_back)),
       ),
       body: StreamBuilder(
         stream: _classroomStream,
@@ -115,10 +115,7 @@ class _RemoveClassroomsState extends State<RemoveClassrooms> {
                                               future: deleteClassrooms(
                                                 classrooms: classrooms,
                                               ),
-                                              onFutureComplete: () {
-                                                print(
-                                                    'future complete classrooms completed');
-
+                                              onFutureComplete: (error) {
                                                 String message =
                                                     'Classroom removed';
                                                 if (classrooms.length > 1) {

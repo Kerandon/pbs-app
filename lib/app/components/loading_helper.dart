@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'error_page.dart';
+import 'package:pbs_app/utils/enums/task_status.dart';
 import 'loading_page.dart';
 
 class LoadingHelper extends StatefulWidget {
@@ -13,7 +12,7 @@ class LoadingHelper extends StatefulWidget {
   });
 
   final Future<dynamic> future;
-  final VoidCallback? onFutureComplete;
+  final Function(TaskStatus)? onFutureComplete;
   final String? text1, text2;
 
   @override
@@ -26,28 +25,36 @@ class _LoadingHelperState extends State<LoadingHelper> {
     return FutureBuilder<dynamic>(
       future: widget.future,
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.hasError) {
-            return const ErrorPage();
-          }
-
+        if (snapshot.connectionState == ConnectionState.done) {
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-            widget.onFutureComplete?.call();
-            // await pop(context);
+            if (snapshot.hasError) {
+              widget.onFutureComplete?.call(TaskStatus.failFirebase);
+            } else {
+              final result = snapshot.data as TaskStatus;
+              if (result == TaskStatus.success) {
+                widget.onFutureComplete?.call(TaskStatus.success);
+              }
+              if (result == TaskStatus.failStudentAlreadyExists) {
+                widget.onFutureComplete
+                    ?.call(TaskStatus.failStudentAlreadyExists);
+              }
+            }
           });
         }
-        return LoadingPage(text1: widget.text1, text2: widget.text2,);
+        return LoadingPage(
+          text1: widget.text1,
+          text2: widget.text2,
+        );
       },
     );
   }
 }
 
-//   Future<void> pop(BuildContext context) async {
-//     Builder(
-//       builder: (context) {
-//         Navigator.of(context).maybePop();
-//         return const SizedBox();
-//       },
-//     );
-//   }
+// Future<void> pop(BuildContext context) async {
+//   Builder(
+//     builder: (context) {
+//       Navigator.of(context).maybePop();
+//       return const SizedBox();
+//     },
+//   );
 // }

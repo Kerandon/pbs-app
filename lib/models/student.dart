@@ -6,7 +6,7 @@ class Student extends Equatable {
   final String name;
   final Gender gender;
   final String house;
-  final String classRoom;
+  final String classroom;
   final bool present;
   final int points;
 
@@ -14,7 +14,7 @@ class Student extends Equatable {
     required this.name,
     required this.gender,
     required this.house,
-    required this.classRoom,
+    required this.classroom,
     required this.present,
     required this.points,
   });
@@ -35,7 +35,7 @@ class Student extends Equatable {
       name: name,
       gender: g,
       house: house,
-      classRoom: classRoom,
+      classroom: classRoom,
       present: true,
       points: 0,
     );
@@ -56,7 +56,7 @@ class Student extends Equatable {
       name: name,
       gender: gender,
       house: json['house'],
-      classRoom: json['classroom'],
+      classroom: json['classroom'],
       present: json['present'],
       points: json['points'],
     );

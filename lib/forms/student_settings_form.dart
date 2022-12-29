@@ -1,12 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:pbs_app/classroom/classroom_main.dart';
 import 'package:pbs_app/classroom/student_settings.dart';
 import 'package:pbs_app/utils/enums/attendance.dart';
+import 'package:pbs_app/utils/enums/task_status.dart';
 import '../app/components/loading_helper.dart';
+import '../app/components/loading_page.dart';
+import '../utils/firebase_properties.dart';
 import '../data/houses.dart';
 import '../models/student.dart';
-import '../configs/constants.dart';
 import '../utils/enums/gender.dart';
 import '../utils/methods/methods_forms.dart';
 import 'custom_dropdown.dart';
@@ -27,6 +31,10 @@ class StudentSettingsForm extends ConsumerStatefulWidget {
 }
 
 class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
+
+  late final Stream<QuerySnapshot> _allClassroomsStream;
+
+
   final _formKey = GlobalKey<FormBuilderState>();
 
   bool _haveNewValue = false;
@@ -42,115 +50,183 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
   }
 
   @override
+  void initState() {
+    _allClassroomsStream =
+        FirebaseFirestore.instance.collection(FirebaseProperties.collectionClassrooms)
+            .snapshots();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery
+        .of(context)
+        .size;
 
-    return FormBuilder(
-      key: _formKey,
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            CustomTextField(
-              initialValue: widget.student.name,
-              name: 'name',
-              newValueEntered: (newValue) {
-                valueEntered(isNew: newValue, name: kPoints);
-              },
-            ),
-            CustomDropDown(
-              values: Gender.values.map((e) => e.toText()).toList(),
-              name: kGender,
-              initialValue: widget.student.gender.toText(),
-              newValueEntered: (newValue) {
-                valueEntered(isNew: newValue, name: kGender);
-              },
-            ),
-            CustomDropDown(
-              name: kHouse,
-              values: houses,
-              initialValue: widget.student.house,
-              newValueEntered: (newValue) {
-                valueEntered(isNew: newValue, name: kHouse);
-              },
-            ),
-            CustomDropDown(
-              name: kAttendance,
-              values: Attendance.values.map((e) => e.toText()).toList(),
-              initialValue: widget.student.present
-                  ? Attendance.present.toText()
-                  : Attendance.absent.toText(),
-              newValueEntered: (newValue) {
-                valueEntered(isNew: newValue, name: kAttendance);
-              },
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 16, left: 16),
-                      child: Text(
-                        'Points',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
+    return StreamBuilder<QuerySnapshot>(
+        stream: _allClassroomsStream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          List<String> classrooms = [];
+
+          if (snapshot.hasData) {
+            final docs = snapshot.data!.docs;
+            for (var d in docs) {
+              classrooms.add(d.id);
+            }
+
+            return FormBuilder(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomTextField(
+                      initialValue: widget.student.name,
+                      name: 'name',
+                      leading: 'Name',
+                      newValueEntered: (newValue) {
+                        valueEntered(isNew: newValue, name: FirebaseProperties.points);
+                      },
                     ),
-                  ),
-                ),
-                Expanded(
-                  child: CustomNumberField(
-                    name: kPoints,
-                    initialValue: widget.student.points.toString(),
-                    newValueEntered: (newValue) {
-                      valueEntered(isNew: newValue, name: kPoints);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: size.height * 0.02,
-            ),
-            OutlinedButton(
-                onPressed: _haveNewValue
-                    ? () {
-                        final validated = _formKey.currentState!.isValid;
-                        if (validated) {
-                          _formKey.currentState!.save();
-                          final futureDetails = updateStudentDetails(
-                              student: widget.student,
-                              formKey: _formKey,
-                              ref: ref);
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => LoadingHelper(
-                                future: futureDetails,
-                                onFutureComplete: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Student details saved'),
-                                    ),
-                                  );
+                    CustomDropDown(
+                      values: classrooms.toList(),
+                      name: FirebaseProperties.classroom,
+                      leading: 'Classroom',
+                      initialValue: widget.student.classroom,
+                      newValueEntered: (newValue) {
+                        valueEntered(isNew: newValue, name: FirebaseProperties.classroom);
+                      },
+                    ),
+                    CustomDropDown(
+                      values: Gender.values.map((e) => e.toText()).toList(),
+                      name: FirebaseProperties.gender,
+                      initialValue: widget.student.gender.toText(),
+                      leading: 'Gender',
+                      newValueEntered: (newValue) {
+                        valueEntered(isNew: newValue, name: FirebaseProperties.gender,);
+                      },
+                    ),
+                    CustomDropDown(
+                      name:FirebaseProperties.house,
+                      values: houses,
+                      initialValue: widget.student.house,
+                      leading: 'House',
+                      newValueEntered: (newValue) {
+                        valueEntered(isNew: newValue, name: FirebaseProperties.house,);
+                      },
+                    ),
+                    CustomDropDown(
+                      name: FirebaseProperties.attendance,
+                      values: Attendance.values.map((e) => e.toText()).toList(),
+                      initialValue: widget.student.present
+                          ? Attendance.present.toText()
+                          : Attendance.absent.toText(),
+                      leading: 'Attendance',
+                      newValueEntered: (newValue) {
+                        valueEntered(isNew: newValue, name: FirebaseProperties.attendance);
+                      },
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomNumberField(
+                            name: FirebaseProperties.points,
+                            initialValue: widget.student.points.toString(),
+                            leading: 'Points',
+                            newValueEntered: (newValue) {
+                              valueEntered(isNew: newValue, name: FirebaseProperties.points,);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: size.height * 0.02,
+                    ),
+                    SizedBox(
+                      width: size.width,
+                      child: OutlinedButton(
+                          onPressed: _haveNewValue
+                              ? () {
+                            final validated = _formKey.currentState!.isValid;
+                            if (validated) {
+                              _formKey.currentState!.save();
 
-                                  Navigator.of(context).pushAndRemoveUntil(
-                                      MaterialPageRoute(
-                                          builder: (context) => StudentSettings(
-                                              student: widget.student)),
-                                      (route) => false);
-                                },
-                              ),
-                            ),
-                          );
-                        }
-                      }
-                    : null,
-                child: const Text('Change details'))
-          ],
-        ),
-      ),
+
+
+
+                              final futureDetails = updateStudentDetails(
+                                  student: widget.student,
+                                  formKey: _formKey,
+                                  ref: ref);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      LoadingHelper(
+                                        future: futureDetails,
+                                        onFutureComplete: (error) {
+
+
+                                          if (error == TaskStatus
+                                              .failStudentAlreadyExists) {
+                                            Navigator.of(context)
+                                                .pushAndRemoveUntil(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        StudentSettings(
+                                                            student: widget
+                                                                .student)
+                                                ),
+                                                    (route) => false);
+
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    'Saved details failed = a student with the same name is already in this class'),
+                                              ),
+                                            );
+                                          } else {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    'Student details saved'),
+                                              ),
+                                            );
+                                            Navigator.of(context)
+                                                .pushAndRemoveUntil(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ClassroomMain(
+                                                            classroom: widget
+                                                                .student
+                                                                .classroom)
+                                                ),
+                                                    (route) => false);
+                                          }
+
+                                        }
+                                      ),
+                                ),
+                              );
+                            }
+                          }
+                              : null,
+                          child: const Text('Save changed details')),
+                    )
+                  ],
+                ),
+              ),
+            );
+          }
+          return const LoadingPage();
+        }
+
     );
   }
 }
+
+
+

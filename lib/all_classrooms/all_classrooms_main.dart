@@ -1,9 +1,8 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import '../app/components/loading_page.dart';
-import '../configs/constants.dart';
+import '../utils/firebase_properties.dart';
+import 'classroom_tile.dart';
 
 class AllClassroomsMain extends StatefulWidget {
   const AllClassroomsMain({
@@ -15,13 +14,12 @@ class AllClassroomsMain extends StatefulWidget {
 }
 
 class _AllClassroomsMainState extends State<AllClassroomsMain> {
-
   late final Stream<QuerySnapshot<Map<String, dynamic>>> _classroomStream;
 
   @override
   void initState() {
     _classroomStream = FirebaseFirestore.instance
-        .collection(kCollectionClassrooms)
+        .collection(FirebaseProperties.collectionClassrooms)
         .snapshots();
     super.initState();
   }
@@ -31,8 +29,7 @@ class _AllClassroomsMainState extends State<AllClassroomsMain> {
     final size = MediaQuery.of(context).size;
     return StreamBuilder<QuerySnapshot>(
         stream: _classroomStream,
-        builder:
-            (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           Set<String> classrooms = {};
 
           if (snapshot.hasData) {
@@ -52,13 +49,11 @@ class _AllClassroomsMainState extends State<AllClassroomsMain> {
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
               ),
-              itemBuilder: (context, index) => Container(
-                color: Colors.green,
-                child: Text(classrooms.elementAt(index)),
-              ),
+              itemBuilder: (context, index) =>
+                  ClassroomTile(classroom: classrooms.elementAt(index)),
             );
           }
-          return LoadingPage();
+          return const LoadingPage();
         });
   }
 }

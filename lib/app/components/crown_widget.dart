@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pbs_app/utils/firebase_properties.dart';
 
 import '../../classroom/student_crown.dart';
 import '../../models/student.dart';
-import '../../configs/constants.dart';
 
 class CrownWidget extends StatefulWidget {
   const CrownWidget({Key? key, required this.student}) : super(key: key);
@@ -21,9 +21,9 @@ class _CrownWidgetState extends State<CrownWidget> {
   @override
   void initState() {
     _allStudentsStream = FirebaseFirestore.instance
-        .collection(kCollectionClassrooms)
-        .doc(widget.student.classRoom)
-        .collection(kCollectionStudents)
+        .collection(FirebaseProperties.collectionClassrooms)
+        .doc(widget.student.classroom)
+        .collection(FirebaseProperties.collectionStudents)
         .snapshots();
     super.initState();
   }
@@ -51,19 +51,19 @@ class _CrownWidgetState extends State<CrownWidget> {
         students.sort((a, b) => b.points.compareTo(a.points));
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           if (students.isNotEmpty) {
-            if (widget.student.points == students.first.points || widget.student.name == students.first.name) {
+            if (widget.student.points == students.first.points ||
+                widget.student.name == students.first.name) {
               _showCrown = true;
             } else {
               _showCrown = false;
             }
-            if(widget.student.points == 0){
+            if (widget.student.points == 0) {
               _showCrown = false;
             }
           }
-          if(mounted) {
+          if (mounted) {
             setState(() {});
           }
-
         });
 
         return _showCrown ? const StudentCrown() : const SizedBox();

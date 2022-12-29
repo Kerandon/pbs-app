@@ -7,8 +7,11 @@ import '../utils/enums/form_types.dart';
 
 class ClassroomDrawer extends ConsumerWidget {
   const ClassroomDrawer({
+    required this.classroom,
     super.key,
   });
+
+  final String classroom;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,7 +34,8 @@ class ClassroomDrawer extends ConsumerWidget {
                     onExitPage: () {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder: (context) => ClassroomMain(),
+                          builder: (context) =>
+                              ClassroomMain(classroom: classroom),
                         ),
                       );
                     },
@@ -44,8 +48,12 @@ class ClassroomDrawer extends ConsumerWidget {
             leading: const Icon(Icons.remove),
             title: const Text('Remove students'),
             onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const RemoveStudentsPage()));
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      RemoveStudentsPage(classroom: classroom),
+                ),
+              );
             },
           )
         ],
