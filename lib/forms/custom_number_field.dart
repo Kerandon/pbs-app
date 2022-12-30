@@ -28,7 +28,7 @@ class CustomNumberField extends StatelessWidget {
             flex: 8,
             child: SizedBox()),
         Expanded(
-          flex: 4,
+          flex: 3,
           child: FormBuilderTextField(
             onChanged: (value) {
               if (value != initialValue) {

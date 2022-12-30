@@ -5,7 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/classroom/classroom_main.dart';
 import 'package:pbs_app/classroom/student_settings.dart';
 import 'package:pbs_app/utils/enums/attendance.dart';
-import 'package:pbs_app/utils/enums/task_status.dart';
+import 'package:pbs_app/utils/enums/task_result.dart';
 import '../app/components/loading_helper.dart';
 import '../app/components/loading_page.dart';
 import '../utils/firebase_properties.dart';
@@ -83,7 +83,7 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
                   children: [
                     CustomTextField(
                       initialValue: widget.student.name,
-                      name: 'name',
+                      name: FirebaseProperties.name,
                       leading: 'Name',
                       newValueEntered: (newValue) {
                         valueEntered(isNew: newValue, name: FirebaseProperties.points);
@@ -168,7 +168,7 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
                                         onFutureComplete: (error) {
 
 
-                                          if (error == TaskStatus
+                                          if (error == TaskResult
                                               .failStudentAlreadyExists) {
                                             Navigator.of(context)
                                                 .pushAndRemoveUntil(

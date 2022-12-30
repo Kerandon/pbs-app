@@ -96,7 +96,7 @@ class _StudentTileState extends State<StudentTile> {
                             child: Container(
                               decoration: const BoxDecoration(
                                   color: Colors.black12,
-                                  shape: BoxShape.circle),
+                                  shape: BoxShape.circle,),
                               child: Center(
                                 child: Text(
                                   _points.toString(),

@@ -1,7 +1,9 @@
-enum TaskStatus {
+enum TaskResult {
 
+  inProgress,
   success,
   failFirebase,
+  failHttp,
   failStudentAlreadyExists,
 
 }

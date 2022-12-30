@@ -14,12 +14,15 @@ class StudentForm extends StatefulWidget {
     super.key,
     required this.index,
     required this.formKey,
+    required this.classroom,
     this.isValidated,
   });
 
   final int index;
   final GlobalKey<FormBuilderState> formKey;
+  final String classroom;
   final Function(bool isValidated)? isValidated;
+
 
   @override
   State<StudentForm> createState() => _StudentFormState();
@@ -49,8 +52,7 @@ class _StudentFormState extends State<StudentForm> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _validatorTracker.addAll({
         FirebaseProperties.name: false,
-        FirebaseProperties.classroom :
-        true,
+        FirebaseProperties.classroom : true,
         FirebaseProperties.gender : false,
         FirebaseProperties.house : false
       });
@@ -82,16 +84,19 @@ class _StudentFormState extends State<StudentForm> {
                   },
                 ),
                 CustomDropDown(
-                  name: FirebaseProperties.name,
-                  hintText: 'Classroom',
+                  name: FirebaseProperties.classroom,
+                  leading: 'Classroom',
+                  hintText: AppMessages.kPleaseSelect,
                   values: allClasses,
+                  initialValue: widget.classroom,
                   isValidated: (isValid) {
                     _updateValidator(name: FirebaseProperties.classroom, isValidated: isValid);
                   },
                 ),
                 CustomDropDown(
                   name: FirebaseProperties.house,
-                  hintText: 'House',
+                  leading: 'House',
+                  hintText: AppMessages.kPleaseSelect,
                   values: houses,
                   isValidated: (isValid) {
                     _updateValidator(name: FirebaseProperties.house, isValidated: isValid);
@@ -119,15 +124,18 @@ class _StudentFormState extends State<StudentForm> {
                         )
                       ],
                     ),
+                    const Divider(),
                     const SizedBox(
                       height: 2,
                     ),
                     CustomTextField(
                         isValidated: (isValid) {
-                          _updateValidator(name: 'name', isValidated: isValid);
+                          _updateValidator(name: FirebaseProperties.name, isValidated: isValid);
                         },
-                        name: 'name',
-                        hintText: 'Name'),
+                        leading: 'Name',
+                        name: FirebaseProperties.name,
+                        hintText: AppMessages.kPleaseSelect,
+                    ),
                     Column(
                       children: dropDowns,
                     ),

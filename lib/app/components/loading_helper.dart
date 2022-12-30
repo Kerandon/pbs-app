@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pbs_app/utils/enums/task_status.dart';
+import 'package:pbs_app/utils/enums/task_result.dart';
 import 'loading_page.dart';
 
 class LoadingHelper extends StatefulWidget {
@@ -12,7 +12,7 @@ class LoadingHelper extends StatefulWidget {
   });
 
   final Future<dynamic> future;
-  final Function(TaskStatus)? onFutureComplete;
+  final Function(TaskResult)? onFutureComplete;
   final String? text1, text2;
 
   @override
@@ -28,15 +28,15 @@ class _LoadingHelperState extends State<LoadingHelper> {
         if (snapshot.connectionState == ConnectionState.done) {
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
             if (snapshot.hasError) {
-              widget.onFutureComplete?.call(TaskStatus.failFirebase);
+              widget.onFutureComplete?.call(TaskResult.failFirebase);
             } else {
-              final result = snapshot.data as TaskStatus;
-              if (result == TaskStatus.success) {
-                widget.onFutureComplete?.call(TaskStatus.success);
+              final result = snapshot.data as TaskResult;
+              if (result == TaskResult.success) {
+                widget.onFutureComplete?.call(TaskResult.success);
               }
-              if (result == TaskStatus.failStudentAlreadyExists) {
+              if (result == TaskResult.failStudentAlreadyExists) {
                 widget.onFutureComplete
-                    ?.call(TaskStatus.failStudentAlreadyExists);
+                    ?.call(TaskResult.failStudentAlreadyExists);
               }
             }
           });

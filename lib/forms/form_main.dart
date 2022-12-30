@@ -115,6 +115,7 @@ class _FormMainState extends ConsumerState<FormMain> {
                   children: [
                     StudentForm(
                       index: index,
+                      classroom: widget.classroom!,
                       formKey: _formKeys[index],
                       isValidated: (isValidated) {
                         _addFormToValidatorTracker(

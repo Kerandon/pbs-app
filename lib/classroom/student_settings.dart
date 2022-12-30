@@ -11,7 +11,7 @@ import '../app/components/avatar_image.dart';
 import '../app/components/confirmation_box.dart';
 import '../app/components/loading_helper.dart';
 import '../forms/student_settings_form.dart';
-import '../utils/enums/task_status.dart';
+import '../utils/enums/task_result.dart';
 import '../utils/methods/image_picker.dart';
 
 class StudentSettings extends StatefulWidget {
@@ -107,12 +107,12 @@ class _StudentSettingsState extends State<StudentSettings> {
                                       Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(
                                           builder: (context) => LoadingHelper(
-                                            onFutureComplete: (taskStatus) {
+                                            onFutureComplete: (taskStatus) async {
                                               String snackbarMessage =
                                                   'New robo-avatar generated';
 
                                               if (taskStatus ==
-                                                  TaskStatus.failFirebase) {
+                                                  TaskResult.failFirebase) {
                                                 snackbarMessage = AppMessages
                                                     .kErrorFirebaseConnection;
                                               }
@@ -123,9 +123,9 @@ class _StudentSettingsState extends State<StudentSettings> {
                                                       Text(snackbarMessage),
                                                 ),
                                               );
-                                              pushReplacementRoute(
-                                                  context: context,
-                                                  destination: StudentSettings(
+                                              await pushReplacementRoute(
+                                                  context,
+                                                  StudentSettings(
                                                       student: widget.student));
                                             },
                                             future: generateAvatar(

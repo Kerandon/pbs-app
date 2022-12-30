@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -6,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:pbs_app/utils/firebase_properties.dart';
 import 'package:pbs_app/state/database_manager.dart';
 import 'package:pbs_app/models/avatar_image.dart';
-import 'package:pbs_app/utils/enums/task_status.dart';
+import 'package:pbs_app/utils/enums/task_result.dart';
 import 'dart:developer' as developer;
 
 import '../../state/simple_providers.dart';
@@ -14,39 +15,48 @@ import '../globals.dart';
 import '../../models/student.dart';
 import '../enums/platforms.dart';
 
-Future<TaskStatus> generateAvatar(
+Future<TaskResult> generateAvatar(
     {required Student student, required WidgetRef ref}) async {
   final String avatarKey = '${student.classroom}_${student.name}';
-  final avatarState = ref.read(avatarProvider);
 
-  final randomID = Random().nextInt(99999999);
-  final response =
-      await http.get(Uri.parse('https://robohash.org/$avatarKey$randomID'));
-  final bytes = response.bodyBytes;
+  Uint8List? bytes;
   try {
-    avatarState.addAll([SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
-    final uploadTask = await FirebaseStorage.instance
-        .ref('${FirebaseProperties.avatarsBucket}/$avatarKey')
-        .putData(bytes);
+    final randomID = Random().nextInt(9999999);
+    final response =
+        await http.get(Uri.parse('https://robohash.org/$avatarKey$randomID'));
+    bytes = response.bodyBytes;
+  } on HttpException catch (e) {
+    developer.log(e.message);
+    return TaskResult.failHttp;
+  }
+
+    try {
+      await FirebaseStorage.instance
+          .ref('${FirebaseProperties.avatarsBucket}/$avatarKey')
+          .putData(bytes);
+    } on FirebaseException catch (e) {
+      developer.log(e.message!);
+      return TaskResult.failFirebase;
+    }
     if (appPlatform != AppPlatform.web) {
-      DatabaseManager().insertAvatars(
+      await DatabaseManager().insertAvatars(
         avatars: [
           SavedAvatar(avatarKey: avatarKey, bytes: bytes),
         ],
       );
     }
-    if (uploadTask.state == TaskState.success) {
-      return TaskStatus.success;
-    }
-  } on FirebaseException catch (e) {
-    developer
-        .log('Cloud Firestore avatar image upload task failed ${e.message}');
-    return TaskStatus.failFirebase;
-  }
-  return TaskStatus.success;
+    final avatarState = ref.read(avatarProvider);
+    avatarState.addAll(
+      [
+        SavedAvatar(avatarKey: avatarKey, bytes: bytes),
+      ],
+    );
+
+
+  return TaskResult.success;
 }
 
-Future<int> saveImageData(
+Future<TaskResult> saveImageData(
     {required Uint8List bytes,
     required String avatarKey,
     required WidgetRef ref}) async {
@@ -56,7 +66,7 @@ Future<int> saveImageData(
         .putData(bytes);
   } on FirebaseException catch (e) {
     developer.log(e.message!);
-    return 400;
+    return TaskResult.failFirebase;
   }
   if (appPlatform != AppPlatform.web) {
     await DatabaseManager().insertAvatars(
@@ -66,11 +76,12 @@ Future<int> saveImageData(
   ref
       .read(avatarProvider)
       .addAll([SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
-  return 200;
+
+  return TaskResult.success;
 }
 
-Future<int> removeImageData(
-    {required Uint8List bytes,
+Future<TaskResult> removeImageData(
+    {
     required String avatarKey,
     required WidgetRef ref}) async {
   try {
@@ -79,7 +90,7 @@ Future<int> removeImageData(
         .delete();
   } on FirebaseException catch (e) {
     developer.log(e.message!);
-    return 400;
+    return TaskResult.failFirebase;
   }
   if (appPlatform != AppPlatform.web) {
     await DatabaseManager().deleteAvatar(avatarKey: avatarKey);
@@ -88,5 +99,5 @@ Future<int> removeImageData(
   ref
       .read(avatarProvider)
       .removeWhere((element) => element.avatarKey == avatarKey);
-  return 200;
+  return TaskResult.success;
 }

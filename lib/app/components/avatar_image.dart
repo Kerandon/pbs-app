@@ -51,7 +51,7 @@ class _AvatarImageState extends ConsumerState<AvatarImage> {
                 future: _firebaseStorageFuture,
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
-                    return const Icon(Icons.person);
+                    return ImageBox(bytes: null, present: widget.present);
                   }
                   if (snapshot.hasData) {
                     _bytes = snapshot.data;
@@ -105,6 +105,8 @@ class ImageBox extends StatelessWidget {
                     color: Colors.grey,
                   ),
           )
-        : const Icon(Icons.person);
+        : Center(
+
+        child: Icon(Icons.person, color: present ? Colors.blue : Colors.grey, size: 30,));
   }
 }

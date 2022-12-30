@@ -30,6 +30,7 @@ class ClassroomDrawer extends ConsumerWidget {
                 MaterialPageRoute(
                   builder: (context) => FormMain(
                     formType: FormType.student,
+                    classroom: classroom,
                     title: 'Add students',
                     onExitPage: () {
                       Navigator.of(context).pushReplacement(

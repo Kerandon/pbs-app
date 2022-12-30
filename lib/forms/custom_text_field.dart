@@ -29,7 +29,7 @@ class CustomTextField extends StatelessWidget {
         leading != null ?
         Expanded(child: Text(leading!, style: Theme.of(context).textTheme.headlineSmall,),) : const SizedBox(),
         Expanded(
-          flex: 4,
+          flex: 3,
           child: Padding(
             padding: EdgeInsets.only(bottom: size.height * 0.01),
             child: FormBuilderTextField(

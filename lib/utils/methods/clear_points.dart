@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pbs_app/utils/firebase_properties.dart';
-import 'package:pbs_app/utils/enums/task_status.dart';
+import 'package:pbs_app/utils/enums/task_result.dart';
 
 import '../../models/student.dart';
 
 import 'dart:developer' as developer;
 
-Future<TaskStatus> clearPoints({required Student student}) async {
+Future<TaskResult> clearPoints({required Student student}) async {
   try {
     await FirebaseFirestore.instance
         .collection(FirebaseProperties.collectionClassrooms)
@@ -14,9 +14,9 @@ Future<TaskStatus> clearPoints({required Student student}) async {
         .collection(FirebaseProperties.collectionStudents)
         .doc(student.name)
         .update({'points': 0});
-    return TaskStatus.success;
+    return TaskResult.success;
   } on FirebaseException catch (e) {
     developer.log(e.message!);
-    return TaskStatus.failFirebase;
+    return TaskResult.failFirebase;
   }
 }

@@ -1,13 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/home_page.dart';
 import 'package:pbs_app/models/student.dart';
+import 'package:pbs_app/utils/app_messages.dart';
 import '../../app/components/loading_helper.dart';
 import '../../classroom/classroom_main.dart';
 import '../firebase_properties.dart';
-import '../enums/task_status.dart';
+import '../enums/task_result.dart';
 import 'avatar_methods.dart';
 import 'dart:typed_data';
 import '../../state/simple_providers.dart';
@@ -23,15 +26,16 @@ List<Student> getStudentsFromForm(
     students.add(Student.fromForm(
       name: value[FirebaseProperties.name],
       gender: value[FirebaseProperties.gender],
-      house: value[FirebaseProperties.house],
       classRoom: value[FirebaseProperties.classroom],
+      house: value[FirebaseProperties.house],
     ));
   }
 
   return students;
 }
 
-Future<int> addClassroomsToFirebase({required List<String> classrooms}) async {
+Future<TaskResult> addClassroomsToFirebase(
+    {required List<String> classrooms}) async {
   try {
     for (var c in classrooms) {
       await FirebaseFirestore.instance
@@ -41,48 +45,62 @@ Future<int> addClassroomsToFirebase({required List<String> classrooms}) async {
     }
   } on FirebaseException catch (e) {
     developer.log(e.message!);
-    return 400;
+    return TaskResult.failFirebase;
   }
 
-  return 200;
+  return TaskResult.success;
 }
 
-Future<int> addStudentsToFirebase(
+Future<TaskResult> addStudentsToFirebase(
     {required List<Student> students, required WidgetRef ref}) async {
+  TaskResult taskResult = TaskResult.inProgress;
+
   try {
+    final classroomCollection = FirebaseFirestore.instance
+        .collection(FirebaseProperties.collectionClassrooms);
     for (var s in students) {
-      FirebaseFirestore.instance
-          .collection(FirebaseProperties.collectionClassrooms)
+      final doc = await classroomCollection
           .doc(s.classroom)
           .collection(FirebaseProperties.collectionStudents)
           .doc(s.name)
-          .set(
-        {
-          FirebaseProperties.gender: s.gender.name,
-          FirebaseProperties.house: s.house,
-          FirebaseProperties.classroom: s.classroom,
-          FirebaseProperties.points: 0,
-          FirebaseProperties.attendance: true
-        },
-      );
-      await generateAvatar(student: s, ref: ref);
+          .get();
+      if (doc.exists) {
+        return TaskResult.failStudentAlreadyExists;
+      } else {
+        await classroomCollection
+            .doc(s.classroom)
+            .collection(FirebaseProperties.collectionStudents)
+            .doc(s.name)
+            .set(
+          {
+            FirebaseProperties.gender: s.gender.name,
+            FirebaseProperties.house: s.house,
+            FirebaseProperties.classroom: s.classroom,
+            FirebaseProperties.points: 0,
+            FirebaseProperties.attendance: true
+          },
+        );
+        taskResult = await generateAvatar(student: s, ref: ref);
+      }
     }
   } on FirebaseException catch (e) {
     developer.log(e.message!);
-    return 400;
+    return TaskResult.failFirebase;
   }
-
-  return 200;
+  if (taskResult == TaskResult.success) {
+    return TaskResult.success;
+  }
+  return TaskResult.inProgress;
 }
 
-Future<TaskStatus> updateStudentDetails(
+Future<TaskResult> updateStudentDetails(
     {required Student student,
     required GlobalKey<FormBuilderState> formKey,
     required WidgetRef ref}) async {
   final exists = await checkIfStudentExistsInClassroom(formKey: formKey);
 
   if (exists) {
-    return TaskStatus.failStudentAlreadyExists;
+    return TaskResult.failStudentAlreadyExists;
   } else {
     final documentReference = FirebaseFirestore.instance
         .collection(FirebaseProperties.collectionClassrooms)
@@ -122,7 +140,7 @@ Future<TaskStatus> updateStudentDetails(
         });
       } on FirebaseException catch (e) {
         developer.log(e.message!);
-        return TaskStatus.failFirebase;
+        return TaskResult.failFirebase;
       }
 
       String avatarKeyNew = '${formClassroom}_$formName';
@@ -139,46 +157,52 @@ Future<TaskStatus> updateStudentDetails(
         });
       } on FirebaseException catch (e) {
         developer.log(e.message!);
-        return TaskStatus.failFirebase;
+        return TaskResult.failFirebase;
       }
     }
 
-    return TaskStatus.success;
+    return TaskResult.success;
   }
 }
 
-Future<int> deleteClassrooms({required Set<String> classrooms}) async {
-  final classroomCollection = await FirebaseFirestore.instance
-      .collection(FirebaseProperties.collectionClassrooms)
-      .get();
+Future<TaskResult> deleteClassrooms({required Set<String> classrooms}) async {
   try {
+    final classroomCollection = await FirebaseFirestore.instance
+        .collection(FirebaseProperties.collectionClassrooms)
+        .get();
+
     for (var c in classroomCollection.docs) {
       await c.reference.delete();
     }
   } on FirebaseException catch (e) {
     developer.log(e.message!);
-    return 400;
+    return TaskResult.failFirebase;
   }
-  return 200;
+  return TaskResult.success;
 }
 
-Future<int> deleteStudents({required Set<Student> students}) async {
-  final studentCollection = FirebaseFirestore.instance
-      .collection(FirebaseProperties.collectionClassrooms);
-
+Future<TaskResult> deleteStudents({required Set<Student> students, required WidgetRef ref}) async {
   try {
+    final studentCollection = FirebaseFirestore.instance
+        .collection(FirebaseProperties.collectionClassrooms);
+
     for (var s in students) {
       await studentCollection
           .doc(s.classroom)
           .collection(FirebaseProperties.collectionStudents)
           .doc(s.name)
           .delete();
+      await removeImageData(avatarKey: '${s.classroom}_${s.name}', ref: ref);
     }
+
+
+
+
   } on FirebaseException catch (e) {
     developer.log(e.message!);
-    return 400;
+    return TaskResult.failFirebase;
   }
-  return 200;
+  return TaskResult.success;
 }
 
 void formSubmittedStudents({
@@ -186,26 +210,32 @@ void formSubmittedStudents({
   required List<GlobalKey<FormBuilderState>> formKeys,
   required WidgetRef ref,
   required String classroom,
-}) {
+}) async {
   final students = getStudentsFromForm(formKeys: formKeys);
 
-  Navigator.of(context).pushReplacement(
+  await Navigator.of(context).pushReplacement(
     MaterialPageRoute(
       builder: (context) => LoadingHelper(
         future: addStudentsToFirebase(students: students, ref: ref),
-        onFutureComplete: (taskResult) {
-          String message = 'Student added';
+        onFutureComplete: (taskResult) async {
+          String scaffoldMessage = AppMessages.kStudentSuccessfullyAdded;
           if (formKeys.length > 1) {
-            message = 'Student\'s added';
+            scaffoldMessage = AppMessages.kStudentsSuccessfullyAdded;
+          }
+          if (taskResult == TaskResult.failStudentAlreadyExists) {
+            scaffoldMessage = AppMessages.kStudentAlreadyExistsInClass;
+          }
+          if (taskResult == TaskResult.failFirebase) {
+            scaffoldMessage == AppMessages.kErrorFirebaseConnection;
           }
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(message),
+              content: Text(scaffoldMessage),
             ),
           );
 
-          Navigator.of(context).pushReplacement(
+          await Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => ClassroomMain(classroom: classroom),
             ),
@@ -259,15 +289,20 @@ Future<bool> checkIfStudentExistsInClassroom(
   final classroom = formKey.currentState!.value[FirebaseProperties.classroom];
   final name = formKey.currentState!.value[FirebaseProperties.name];
 
-  final doc = await FirebaseFirestore.instance
-      .collection(FirebaseProperties.collectionClassrooms)
-      .doc(classroom)
-      .collection(FirebaseProperties.collectionStudents)
-      .doc(name)
-      .get();
-  if (doc.exists) {
-    return true;
-  } else {
+  try {
+    final doc = await FirebaseFirestore.instance
+        .collection(FirebaseProperties.collectionClassrooms)
+        .doc(classroom)
+        .collection(FirebaseProperties.collectionStudents)
+        .doc(name)
+        .get();
+    if (doc.exists) {
+      return true;
+    } else {
+      return false;
+    }
+  } on FirebaseException catch (e) {
+    developer.log(e.message!);
     return false;
   }
 }

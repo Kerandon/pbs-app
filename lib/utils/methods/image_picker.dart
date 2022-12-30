@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pbs_app/state/database_manager.dart';
 import 'package:pbs_app/state/simple_providers.dart';
+import 'package:pbs_app/utils/enums/task_result.dart';
 
 import '../../models/avatar_image.dart';
 import '../../models/student.dart';
@@ -23,28 +24,26 @@ Future<File?> pickImage() async {
   return null;
 }
 
-Future<int?> saveFileImage(
+Future<TaskResult> saveFileImage(
     {required File file,
     required Student student,
     required WidgetRef ref}) async {
   final bytes = await file.readAsBytes();
-  TaskSnapshot? taskSnapshot;
   final avatarKey = '${student.classroom}_${student.name}';
   final avatarState = ref.read(avatarProvider);
   avatarState.addAll([SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
 
   try {
-    taskSnapshot = await FirebaseStorage.instance
+    await FirebaseStorage.instance
         .ref('${student.classroom}_${student.name}')
         .putData(bytes);
   } on FirebaseException catch (e) {
     developer.log(e.message!);
+    return TaskResult.failFirebase;
   }
 
-  if (taskSnapshot != null) {
-    return await DatabaseManager().insertAvatars(
-        avatars: [SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
-  } else {
-    return null;
-  }
+  await DatabaseManager().insertAvatars(
+      avatars: [SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
+
+  return TaskResult.success;
 }

@@ -11,14 +11,14 @@ final appTheme = ThemeData(
     dividerColor: Colors.blue,
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-            textStyle: appTextStyle().copyWith(fontSize: 15))),
+            textStyle: appTextStyle().copyWith(fontSize: 12))),
     appBarTheme: AppBarTheme(
         elevation: 0,
         titleTextStyle: appTextStyle().copyWith(color: Colors.white)));
 
 TextStyle appTextStyle() {
   return const TextStyle(
-    fontSize: 15,
+    fontSize: 12,
     color: Colors.black,
   );
 }

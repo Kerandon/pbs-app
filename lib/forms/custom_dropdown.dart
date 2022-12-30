@@ -35,7 +35,7 @@ class CustomDropDown extends StatelessWidget {
               )
             : const SizedBox(),
         Expanded(
-          flex: 4,
+          flex: 3,
           child: Padding(
             padding: EdgeInsets.only(bottom: size.height * 0.01),
             child: FormBuilderDropdown(
