@@ -48,9 +48,28 @@ Future<TaskResult> clearPoints({required Student student}) async {
         .collection(FirebaseProperties.collectionStudents)
         .doc(student.name)
         .update({'points': 0});
-    return TaskResult.success;
   } on FirebaseException catch (e) {
     developer.log(e.message!);
     return TaskResult.failFirebase;
   }
+  return TaskResult.success;
+}
+
+Future<TaskResult> clearAllStudentsPoints({required String classroom}) async {
+  try {
+    final allStudents = await FirebaseFirestore.instance
+        .collection(FirebaseProperties.collectionClassrooms)
+        .doc(classroom)
+        .collection(FirebaseProperties.collectionStudents)
+        .get();
+
+    for (var s in allStudents.docs) {
+      await clearPoints(student: Student.fromJson(name: s.id, json: s.data()));
+    }
+  } on FirebaseException catch (e) {
+    developer.log(e.message!);
+    return TaskResult.failFirebase;
+  }
+
+  return TaskResult.success;
 }

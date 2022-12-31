@@ -2,4 +2,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../models/avatar_image.dart';
 
-final avatarProvider = Provider<List<SavedAvatar>>((ref) => []);
+final avatarProvider = Provider<List<SavedAvatar>>((ref) {
+  return [];
+});

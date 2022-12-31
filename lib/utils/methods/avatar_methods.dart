@@ -30,28 +30,26 @@ Future<TaskResult> generateAvatar(
     return TaskResult.failHttp;
   }
 
-    try {
-      await FirebaseStorage.instance
-          .ref('${FirebaseProperties.avatarsBucket}/$avatarKey')
-          .putData(bytes);
-    } on FirebaseException catch (e) {
-      developer.log(e.message!);
-      return TaskResult.failFirebase;
-    }
-    if (appPlatform != AppPlatform.web) {
-      await DatabaseManager().insertAvatars(
-        avatars: [
-          SavedAvatar(avatarKey: avatarKey, bytes: bytes),
-        ],
-      );
-    }
-    final avatarState = ref.read(avatarProvider);
-    avatarState.addAll(
-      [
+  try {
+    await FirebaseStorage.instance
+        .ref('${FirebaseProperties.avatarsBucket}/$avatarKey')
+        .putData(bytes);
+  } on FirebaseException catch (e) {
+    developer.log('ERROR!! ${e.message!}');
+    return TaskResult.failFirebase;
+  }
+  if (appPlatform != AppPlatform.web) {
+    await DatabaseManager().insertAvatars(
+      avatars: [
         SavedAvatar(avatarKey: avatarKey, bytes: bytes),
       ],
     );
-
+  }
+  ref.read(avatarProvider).addAll(
+    [
+      SavedAvatar(avatarKey: avatarKey, bytes: bytes),
+    ],
+  );
 
   return TaskResult.success;
 }
@@ -81,9 +79,7 @@ Future<TaskResult> saveImageData(
 }
 
 Future<TaskResult> removeImageData(
-    {
-    required String avatarKey,
-    required WidgetRef ref}) async {
+    {required String avatarKey, required WidgetRef ref}) async {
   try {
     await FirebaseStorage.instance
         .ref('${FirebaseProperties.avatarsBucket}/$avatarKey')

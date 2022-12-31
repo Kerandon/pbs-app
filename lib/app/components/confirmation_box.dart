@@ -24,7 +24,12 @@ class ConfirmationBox extends StatelessWidget {
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: [
         IconButton(
-          onPressed: voidCallBack,
+          onPressed: () async {
+
+            await Navigator.maybePop(context);
+
+            voidCallBack.call();
+          },
           icon: const Icon(Icons.check),
         ),
         IconButton(

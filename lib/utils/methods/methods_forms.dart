@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/home_page.dart';
 import 'package:pbs_app/models/student.dart';
 import 'package:pbs_app/utils/app_messages.dart';
+import 'package:pbs_app/utils/methods/pop_ups.dart';
+import 'package:pbs_app/utils/methods/route_methods.dart';
 import '../../app/components/loading_helper.dart';
 import '../../classroom/classroom_main.dart';
 import '../firebase_properties.dart';
@@ -53,8 +53,6 @@ Future<TaskResult> addClassroomsToFirebase(
 
 Future<TaskResult> addStudentsToFirebase(
     {required List<Student> students, required WidgetRef ref}) async {
-  TaskResult taskResult = TaskResult.inProgress;
-
   try {
     final classroomCollection = FirebaseFirestore.instance
         .collection(FirebaseProperties.collectionClassrooms);
@@ -67,7 +65,8 @@ Future<TaskResult> addStudentsToFirebase(
       if (doc.exists) {
         return TaskResult.failStudentAlreadyExists;
       } else {
-        await classroomCollection
+        await FirebaseFirestore.instance
+            .collection(FirebaseProperties.collectionClassrooms)
             .doc(s.classroom)
             .collection(FirebaseProperties.collectionStudents)
             .doc(s.name)
@@ -80,48 +79,60 @@ Future<TaskResult> addStudentsToFirebase(
             FirebaseProperties.attendance: true
           },
         );
-        taskResult = await generateAvatar(student: s, ref: ref);
+        await generateAvatar(student: s, ref: ref);
       }
     }
   } on FirebaseException catch (e) {
-    developer.log(e.message!);
+    developer.log('failed creating ${e.message!}');
     return TaskResult.failFirebase;
   }
-  if (taskResult == TaskResult.success) {
-    return TaskResult.success;
-  }
-  return TaskResult.inProgress;
+  return TaskResult.success;
 }
 
-Future<TaskResult> updateStudentDetails(
-    {required Student student,
-    required GlobalKey<FormBuilderState> formKey,
-    required WidgetRef ref}) async {
-  final exists = await checkIfStudentExistsInClassroom(formKey: formKey);
+Future<TaskResult> updateStudentDetails({
+  required Student student,
+  required GlobalKey<FormBuilderState> formKey,
+  required WidgetRef ref,
+}) async {
+  final value = formKey.currentState!.value;
 
-  if (exists) {
-    return TaskResult.failStudentAlreadyExists;
-  } else {
+  try {
     final documentReference = FirebaseFirestore.instance
         .collection(FirebaseProperties.collectionClassrooms)
         .doc(student.classroom)
         .collection(FirebaseProperties.collectionStudents)
         .doc(student.name);
 
-    final value = formKey.currentState!.value;
-    Uint8List bytes;
-    String formName = value[FirebaseProperties.name];
-    String formClassroom = value[FirebaseProperties.classroom];
+    if (student.name == value[FirebaseProperties.name] &&
+        student.classroom == value[FirebaseProperties.classroom]) {
+      await documentReference.set({
+        'gender': value[FirebaseProperties.gender],
+        'classroom': value[FirebaseProperties.classroom],
+        'house': value[FirebaseProperties.house],
+        'points': int.parse(value[FirebaseProperties.points]),
+        'present':
+            value[FirebaseProperties.attendance] == 'Present' ? true : false
+      });
 
-    if (student.name != formName || student.classroom != formClassroom) {
-      String avatarKeyCurrent = '${student.classroom}_${student.name}';
+      print('quick edit');
+    } else {
+      bool alreadyExists =
+          await checkIfStudentExistsInClassroom(formKey: formKey);
 
-      bytes = ref
-          .read(avatarProvider)
-          .firstWhere((element) => element.avatarKey == avatarKeyCurrent)
-          .bytes;
+      if (alreadyExists) {
+        return TaskResult.failStudentAlreadyExists;
+      } else {
+        Uint8List bytes;
+        String formName = value[FirebaseProperties.name];
+        String formClassroom = value[FirebaseProperties.classroom];
 
-      try {
+        String avatarKeyCurrent = '${student.classroom}_${student.name}';
+
+        bytes = ref
+            .read(avatarProvider)
+            .firstWhere((element) => element.avatarKey == avatarKeyCurrent)
+            .bytes;
+
         await FirebaseFirestore.instance
             .collection(FirebaseProperties.collectionClassrooms)
             .doc(formClassroom)
@@ -138,31 +149,16 @@ Future<TaskResult> updateStudentDetails(
         }).then((value) async {
           await documentReference.delete();
         });
-      } on FirebaseException catch (e) {
-        developer.log(e.message!);
-        return TaskResult.failFirebase;
-      }
 
-      String avatarKeyNew = '${formClassroom}_$formName';
-      await saveImageData(bytes: bytes, avatarKey: avatarKeyNew, ref: ref);
-    } else {
-      try {
-        await documentReference.set({
-          'gender': value[FirebaseProperties.gender],
-          'classroom': formClassroom,
-          'house': value[FirebaseProperties.house],
-          'points': int.parse(value[FirebaseProperties.points]),
-          'present':
-              value[FirebaseProperties.attendance] == 'Present' ? true : false
-        });
-      } on FirebaseException catch (e) {
-        developer.log(e.message!);
-        return TaskResult.failFirebase;
+        String avatarKeyNew = '${formClassroom}_$formName';
+        await saveImageData(bytes: bytes, avatarKey: avatarKeyNew, ref: ref);
       }
     }
-
-    return TaskResult.success;
+  } on FirebaseException catch (e) {
+    developer.log(e.message!);
+    return TaskResult.failFirebase;
   }
+  return TaskResult.success;
 }
 
 Future<TaskResult> deleteClassrooms({required Set<String> classrooms}) async {
@@ -181,7 +177,8 @@ Future<TaskResult> deleteClassrooms({required Set<String> classrooms}) async {
   return TaskResult.success;
 }
 
-Future<TaskResult> deleteStudents({required Set<Student> students, required WidgetRef ref}) async {
+Future<TaskResult> deleteStudents(
+    {required Set<Student> students, required WidgetRef ref}) async {
   try {
     final studentCollection = FirebaseFirestore.instance
         .collection(FirebaseProperties.collectionClassrooms);
@@ -194,10 +191,6 @@ Future<TaskResult> deleteStudents({required Set<Student> students, required Widg
           .delete();
       await removeImageData(avatarKey: '${s.classroom}_${s.name}', ref: ref);
     }
-
-
-
-
   } on FirebaseException catch (e) {
     developer.log(e.message!);
     return TaskResult.failFirebase;
@@ -205,7 +198,7 @@ Future<TaskResult> deleteStudents({required Set<Student> students, required Widg
   return TaskResult.success;
 }
 
-void formSubmittedStudents({
+Future<void> formSubmittedStudents({
   required BuildContext context,
   required List<GlobalKey<FormBuilderState>> formKeys,
   required WidgetRef ref,
@@ -213,35 +206,27 @@ void formSubmittedStudents({
 }) async {
   final students = getStudentsFromForm(formKeys: formKeys);
 
-  await Navigator.of(context).pushReplacement(
-    MaterialPageRoute(
-      builder: (context) => LoadingHelper(
-        future: addStudentsToFirebase(students: students, ref: ref),
-        onFutureComplete: (taskResult) async {
-          String scaffoldMessage = AppMessages.kStudentSuccessfullyAdded;
-          if (formKeys.length > 1) {
-            scaffoldMessage = AppMessages.kStudentsSuccessfullyAdded;
-          }
-          if (taskResult == TaskResult.failStudentAlreadyExists) {
-            scaffoldMessage = AppMessages.kStudentAlreadyExistsInClass;
-          }
-          if (taskResult == TaskResult.failFirebase) {
-            scaffoldMessage == AppMessages.kErrorFirebaseConnection;
-          }
+  await pushRoute(
+    context,
+    LoadingHelper(
+      future: addStudentsToFirebase(students: students, ref: ref),
+      onFutureComplete: (taskResult) async {
+        String scaffoldMessage = AppMessages.studentSuccessfullyAdded;
+        if (formKeys.length > 1) {
+          scaffoldMessage = AppMessages.studentsSuccessfullyAdded;
+        }
+        if (taskResult == TaskResult.failStudentAlreadyExists) {
+          scaffoldMessage = AppMessages.studentAlreadyExistsInClass;
+        }
+        if (taskResult == TaskResult.failFirebase) {
+          scaffoldMessage == AppMessages.errorFirebaseConnection;
+        }
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(scaffoldMessage),
-            ),
-          );
+        showSnackBarMessage(context, scaffoldMessage);
 
-          await Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => ClassroomMain(classroom: classroom),
-            ),
-          );
-        },
-      ),
+        await pushReplacementRoute(
+            context, ClassroomMain(classroom: classroom));
+      },
     ),
   );
 }

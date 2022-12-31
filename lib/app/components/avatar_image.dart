@@ -29,8 +29,7 @@ class _AvatarImageState extends ConsumerState<AvatarImage> {
   @override
   void initState() {
     _avatarKey = '${widget.student.classroom}_${widget.student.name}';
-    _firebaseStorageFuture =
-        FirebaseStorage.instance.ref().child('avatars/$_avatarKey').getData();
+    _firebaseStorageFuture = FirebaseStorage.instance.ref().child('avatars/$_avatarKey').getData();
     super.initState();
   }
 
@@ -51,6 +50,7 @@ class _AvatarImageState extends ConsumerState<AvatarImage> {
                 future: _firebaseStorageFuture,
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
+
                     return ImageBox(bytes: null, present: widget.present);
                   }
                   if (snapshot.hasData) {
@@ -107,6 +107,6 @@ class ImageBox extends StatelessWidget {
           )
         : Center(
 
-        child: Icon(Icons.person, color: present ? Colors.blue : Colors.grey, size: 30,));
+        child: Icon(Icons.person, color: present ? Colors.blue : Colors.grey, size: 50,));
   }
 }

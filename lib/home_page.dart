@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(),
-      drawer: Drawer(
+      endDrawer: Drawer(
         child: Column(
           children: [
             SizedBox(

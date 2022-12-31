@@ -25,7 +25,7 @@ class CustomNumberField extends StatelessWidget {
         leading != null ?
         Expanded(child: Text(leading!, style: Theme.of(context).textTheme.headlineSmall,),) : const SizedBox(),
         const Expanded(
-            flex: 8,
+            flex: 5,
             child: SizedBox()),
         Expanded(
           flex: 3,

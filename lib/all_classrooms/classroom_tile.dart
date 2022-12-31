@@ -11,14 +11,20 @@ class ClassroomTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => ClassroomMain(classroom: classroom)));
-      },
-      child: Container(
-        color: Colors.green,
-        child: Text(classroom),
+    return Material(
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => ClassroomMain(classroom: classroom)));
+        },
+        child: Column(
+          children: [
+            Expanded(
+                flex: 2,
+                child: Icon(Icons.school_outlined),),
+            Expanded(child: Text(classroom),),
+          ],
+        ),
       ),
     );
   }

@@ -145,7 +145,7 @@ class _FormMainState extends ConsumerState<FormMain> {
             if (index == _numberOfForms) {
               return OutlinedButton(
                 onPressed: _numberOfForms > 0 && _allFormsValidated
-                    ? () {
+                    ? () async {
                         if (_formKeys.isNotEmpty) {
                           for (var w in _formKeys) {
                             w.currentState!.saveAndValidate();
@@ -157,7 +157,7 @@ class _FormMainState extends ConsumerState<FormMain> {
                                 ref: ref);
                           }
                           if (widget.formType == FormType.student) {
-                            formSubmittedStudents(
+                            await formSubmittedStudents(
                               context: context,
                               ref: ref,
                               formKeys: _formKeys,

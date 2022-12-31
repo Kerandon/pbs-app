@@ -6,6 +6,8 @@ import 'package:pbs_app/utils/app_messages.dart';
 import 'package:pbs_app/utils/firebase_properties.dart';
 import 'package:pbs_app/models/student.dart';
 import 'package:pbs_app/utils/methods/avatar_methods.dart';
+import 'package:pbs_app/utils/methods/methods_forms.dart';
+import 'package:pbs_app/utils/methods/pop_ups.dart';
 import 'package:pbs_app/utils/methods/route_methods.dart';
 import '../app/components/avatar_image.dart';
 import '../app/components/confirmation_box.dart';
@@ -14,16 +16,16 @@ import '../forms/student_settings_form.dart';
 import '../utils/enums/task_result.dart';
 import '../utils/methods/image_picker.dart';
 
-class StudentSettings extends StatefulWidget {
+class StudentSettings extends ConsumerStatefulWidget {
   const StudentSettings({Key? key, required this.student}) : super(key: key);
 
   final Student student;
 
   @override
-  State<StudentSettings> createState() => _StudentSettingsState();
+  ConsumerState<StudentSettings> createState() => _StudentSettingsState();
 }
 
-class _StudentSettingsState extends State<StudentSettings> {
+class _StudentSettingsState extends ConsumerState<StudentSettings> {
   late final Future<QuerySnapshot<Map<String, dynamic>>> _classesFuture;
   late final FirebaseFirestore _firebase;
 
@@ -32,6 +34,7 @@ class _StudentSettingsState extends State<StudentSettings> {
     _firebase = FirebaseFirestore.instance;
     _classesFuture =
         _firebase.collection(FirebaseProperties.collectionClassrooms).get();
+
     super.initState();
   }
 
@@ -52,19 +55,59 @@ class _StudentSettingsState extends State<StudentSettings> {
           return Scaffold(
             appBar: AppBar(
               leading: IconButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ClassroomMain(
-                        classroom: widget.student.classroom,
-                      ),
-                    ),
-                  );
+                onPressed: () async {
+                  await pushReplacementRoute(context,
+                      ClassroomMain(classroom: widget.student.classroom,),);
                 },
                 icon: const Icon(Icons.arrow_back_outlined),
               ),
               title: const Text('Edit Student Profile'),
+              actions: [
+                IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => ConfirmationBox(
+                          title:
+                              'Are you sure you want to remove ${widget.student.name}?',
+                          voidCallBack: () => pushReplacementRoute(
+                            context,
+                            Builder(builder: (context) {
+                              return LoadingHelper(
+                                future: deleteStudents(
+                                    students: {widget.student}, ref: ref),
+                                onFutureComplete: (taskResult) async {
+                                  String scaffoldMessage =
+                                      AppMessages.studentSuccessfullyRemoved;
+
+                                  if (taskResult == TaskResult.failFirebase) {
+                                    scaffoldMessage =
+                                        AppMessages.errorFirebaseConnection;
+                                  }
+
+                                  showSnackBarMessage(context, scaffoldMessage);
+
+                                  if (taskResult == TaskResult.success) {
+                                    await pushReplacementRoute(
+                                      context,
+                                      ClassroomMain(
+                                          classroom: widget.student.classroom),
+                                    );
+                                  } else {
+                                    await pushReplacementRoute(
+                                      context,
+                                      StudentSettings(student: widget.student),
+                                    );
+                                  }
+                                },
+                              );
+                            }),
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.delete_outline)),
+              ],
             ),
             body: Padding(
               padding: EdgeInsets.fromLTRB(size.width * 0.10, size.width * 0.02,
@@ -103,35 +146,32 @@ class _StudentSettingsState extends State<StudentSettings> {
                                   context: context,
                                   builder: (context) => ConfirmationBox(
                                     title: 'Change Robo-Avatar?',
-                                    voidCallBack: () {
-                                      Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                          builder: (context) => LoadingHelper(
-                                            onFutureComplete: (taskStatus) async {
-                                              String snackbarMessage =
-                                                  'New robo-avatar generated';
+                                    voidCallBack: () async {
+                                      await pushRoute(context,
+                                        LoadingHelper(
+                                          onFutureComplete: (taskStatus) async {
+                                            String snackBarMessage =
+                                                AppMessages.newRoboAvatarGenerated;
 
-                                              if (taskStatus ==
-                                                  TaskResult.failFirebase) {
-                                                snackbarMessage = AppMessages
-                                                    .kErrorFirebaseConnection;
-                                              }
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                  content:
-                                                      Text(snackbarMessage),
-                                                ),
-                                              );
-                                              await pushReplacementRoute(
-                                                  context,
-                                                  StudentSettings(
-                                                      student: widget.student));
-                                            },
-                                            future: generateAvatar(
-                                                student: widget.student,
-                                                ref: ref),
-                                          ),
+                                            if (taskStatus ==
+                                                TaskResult.failFirebase) {
+                                              snackBarMessage = AppMessages
+                                                  .errorFirebaseConnection;
+                                            }
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(snackBarMessage),
+                                              ),
+                                            );
+                                            await pushReplacementRoute(
+                                                context,
+                                                StudentSettings(
+                                                    student: widget.student));
+                                          },
+                                          future: generateAvatar(
+                                              student: widget.student,
+                                              ref: ref),
                                         ),
                                       );
                                     },

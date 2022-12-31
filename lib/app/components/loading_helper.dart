@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pbs_app/utils/enums/task_result.dart';
+import 'package:pbs_app/utils/methods/pop_ups.dart';
+import '../../utils/app_messages.dart';
 import 'loading_page.dart';
 
 class LoadingHelper extends StatefulWidget {
@@ -20,6 +22,16 @@ class LoadingHelper extends StatefulWidget {
 }
 
 class _LoadingHelperState extends State<LoadingHelper> {
+
+  late final _navigator;
+
+
+  @override
+  void didChangeDependencies() {
+    _navigator = Navigator.of(context);
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<dynamic>(
@@ -28,11 +40,15 @@ class _LoadingHelperState extends State<LoadingHelper> {
         if (snapshot.connectionState == ConnectionState.done) {
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
             if (snapshot.hasError) {
+              showSnackBarMessage(context, AppMessages.errorFirebaseConnection);
               widget.onFutureComplete?.call(TaskResult.failFirebase);
             } else {
               final result = snapshot.data as TaskResult;
               if (result == TaskResult.success) {
-                widget.onFutureComplete?.call(TaskResult.success);
+                await Navigator.maybePop(context).then((value) {
+                  widget.onFutureComplete?.call(TaskResult.success);
+                });
+
               }
               if (result == TaskResult.failStudentAlreadyExists) {
                 widget.onFutureComplete
@@ -50,11 +66,3 @@ class _LoadingHelperState extends State<LoadingHelper> {
   }
 }
 
-// Future<void> pop(BuildContext context) async {
-//   Builder(
-//     builder: (context) {
-//       Navigator.of(context).maybePop();
-//       return const SizedBox();
-//     },
-//   );
-// }

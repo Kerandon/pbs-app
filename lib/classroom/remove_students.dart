@@ -165,63 +165,60 @@ class _RemoveStudentsPageState extends ConsumerState<RemoveStudentsPage> {
                                     }
                                   }
 
-                                  String message =
+                                  String confirmationMessage =
                                       'Remove the ${studentsToDelete.length} selected student?';
                                   if (studentsToDelete.length > 1) {
-                                    message =
+                                    confirmationMessage =
                                         'Remove the ${studentsToDelete.length} selected students?';
                                   }
 
                                   showDialog(
                                     context: context,
                                     builder: (context) => ConfirmationBox(
-                                      title: message,
+                                      title: confirmationMessage,
                                       voidCallBack: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) => LoadingHelper(
-                                              future: deleteStudents(
-                                                  students: studentsToDelete,
-                                                  ref: ref),
-                                              onFutureComplete:
-                                                  (taskResult) async {
-                                                String scaffoldMessage = AppMessages
-                                                    .kStudentSuccessfullyRemoved;
+                                        pushRoute(
+                                          context,
+                                          LoadingHelper(
+                                            future: deleteStudents(
+                                                students: studentsToDelete,
+                                                ref: ref),
+                                            onFutureComplete:
+                                                (taskResult) async {
+                                              String scaffoldMessage = AppMessages
+                                                  .studentSuccessfullyRemoved;
 
-                                                if (_checkedList
-                                                        .entries.length >
-                                                    1) {
-                                                  scaffoldMessage = AppMessages
-                                                      .kStudentsSuccessfullyRemoved;
-                                                }
+                                              if (_checkedList.entries.length >
+                                                  1) {
+                                                scaffoldMessage = AppMessages
+                                                    .studentsSuccessfullyRemoved;
+                                              }
 
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    content:
-                                                        Text(scaffoldMessage),
-                                                  ),
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content:
+                                                      Text(scaffoldMessage),
+                                                ),
+                                              );
+
+                                              if (_checkedList.entries.every(
+                                                  (element) => element.value)) {
+                                                await pushReplacementRoute(
+                                                  context,
+                                                  ClassroomMain(
+                                                      classroom:
+                                                          widget.classroom),
                                                 );
-
-                                                if (_checkedList.entries.every(
-                                                    (element) =>
-                                                        element.value)) {
-                                                  await pushReplacementRoute(
-                                                    context,
-                                                    ClassroomMain(
-                                                        classroom:
-                                                            widget.classroom),
-                                                  );
-                                                } else {
-                                                  await pushReplacementRoute(
-                                                    context,
-                                                    RemoveStudentsPage(
-                                                        classroom:
-                                                            widget.classroom),
-                                                  );
-                                                }
-                                              },
-                                            ),
+                                              } else {
+                                                await pushReplacementRoute(
+                                                  context,
+                                                  RemoveStudentsPage(
+                                                      classroom:
+                                                          widget.classroom),
+                                                );
+                                              }
+                                            },
                                           ),
                                         );
                                       },

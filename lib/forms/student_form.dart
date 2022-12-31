@@ -76,7 +76,7 @@ class _StudentFormState extends State<StudentForm> {
               final List<CustomDropDown> dropDowns = [
                 CustomDropDown(
                   name: FirebaseProperties.gender,
-                  hintText: AppMessages.kPleaseSelect,
+                  hintText: AppMessages.pleaseSelect,
                   leading: 'Gender',
                   values: Gender.values.map((e) => e.toText()).toList(),
                   isValidated: (isValid) {
@@ -86,7 +86,7 @@ class _StudentFormState extends State<StudentForm> {
                 CustomDropDown(
                   name: FirebaseProperties.classroom,
                   leading: 'Classroom',
-                  hintText: AppMessages.kPleaseSelect,
+                  hintText: AppMessages.pleaseSelect,
                   values: allClasses,
                   initialValue: widget.classroom,
                   isValidated: (isValid) {
@@ -96,7 +96,7 @@ class _StudentFormState extends State<StudentForm> {
                 CustomDropDown(
                   name: FirebaseProperties.house,
                   leading: 'House',
-                  hintText: AppMessages.kPleaseSelect,
+                  hintText: AppMessages.pleaseSelect,
                   values: houses,
                   isValidated: (isValid) {
                     _updateValidator(name: FirebaseProperties.house, isValidated: isValid);
@@ -134,7 +134,7 @@ class _StudentFormState extends State<StudentForm> {
                         },
                         leading: 'Name',
                         name: FirebaseProperties.name,
-                        hintText: AppMessages.kPleaseSelect,
+                        hintText: AppMessages.pleaseSelect,
                     ),
                     Column(
                       children: dropDowns,

@@ -4,8 +4,10 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/classroom/classroom_main.dart';
 import 'package:pbs_app/classroom/student_settings.dart';
+import 'package:pbs_app/utils/app_messages.dart';
 import 'package:pbs_app/utils/enums/attendance.dart';
 import 'package:pbs_app/utils/enums/task_result.dart';
+import 'package:pbs_app/utils/methods/route_methods.dart';
 import '../app/components/loading_helper.dart';
 import '../app/components/loading_page.dart';
 import '../utils/firebase_properties.dart';
@@ -31,9 +33,7 @@ class StudentSettingsForm extends ConsumerStatefulWidget {
 }
 
 class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
-
   late final Stream<QuerySnapshot> _allClassroomsStream;
-
 
   final _formKey = GlobalKey<FormBuilderState>();
 
@@ -51,17 +51,15 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
 
   @override
   void initState() {
-    _allClassroomsStream =
-        FirebaseFirestore.instance.collection(FirebaseProperties.collectionClassrooms)
-            .snapshots();
+    _allClassroomsStream = FirebaseFirestore.instance
+        .collection(FirebaseProperties.collectionClassrooms)
+        .snapshots();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery
-        .of(context)
-        .size;
+    final size = MediaQuery.of(context).size;
 
     return StreamBuilder<QuerySnapshot>(
         stream: _allClassroomsStream,
@@ -86,7 +84,8 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
                       name: FirebaseProperties.name,
                       leading: 'Name',
                       newValueEntered: (newValue) {
-                        valueEntered(isNew: newValue, name: FirebaseProperties.points);
+                        valueEntered(
+                            isNew: newValue, name: FirebaseProperties.points);
                       },
                     ),
                     CustomDropDown(
@@ -95,7 +94,9 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
                       leading: 'Classroom',
                       initialValue: widget.student.classroom,
                       newValueEntered: (newValue) {
-                        valueEntered(isNew: newValue, name: FirebaseProperties.classroom);
+                        valueEntered(
+                            isNew: newValue,
+                            name: FirebaseProperties.classroom);
                       },
                     ),
                     CustomDropDown(
@@ -104,16 +105,22 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
                       initialValue: widget.student.gender.toText(),
                       leading: 'Gender',
                       newValueEntered: (newValue) {
-                        valueEntered(isNew: newValue, name: FirebaseProperties.gender,);
+                        valueEntered(
+                          isNew: newValue,
+                          name: FirebaseProperties.gender,
+                        );
                       },
                     ),
                     CustomDropDown(
-                      name:FirebaseProperties.house,
+                      name: FirebaseProperties.house,
                       values: houses,
                       initialValue: widget.student.house,
                       leading: 'House',
                       newValueEntered: (newValue) {
-                        valueEntered(isNew: newValue, name: FirebaseProperties.house,);
+                        valueEntered(
+                          isNew: newValue,
+                          name: FirebaseProperties.house,
+                        );
                       },
                     ),
                     CustomDropDown(
@@ -124,7 +131,9 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
                           : Attendance.absent.toText(),
                       leading: 'Attendance',
                       newValueEntered: (newValue) {
-                        valueEntered(isNew: newValue, name: FirebaseProperties.attendance);
+                        valueEntered(
+                            isNew: newValue,
+                            name: FirebaseProperties.attendance);
                       },
                     ),
                     Row(
@@ -135,7 +144,10 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
                             initialValue: widget.student.points.toString(),
                             leading: 'Points',
                             newValueEntered: (newValue) {
-                              valueEntered(isNew: newValue, name: FirebaseProperties.points,);
+                              valueEntered(
+                                isNew: newValue,
+                                name: FirebaseProperties.points,
+                              );
                             },
                           ),
                         ),
@@ -149,70 +161,58 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
                       child: OutlinedButton(
                           onPressed: _haveNewValue
                               ? () {
-                            final validated = _formKey.currentState!.isValid;
-                            if (validated) {
-                              _formKey.currentState!.save();
+                                  final validated =
+                                      _formKey.currentState!.isValid;
+                                  if (validated) {
+                                    _formKey.currentState!.save();
 
-
-
-
-                              final futureDetails = updateStudentDetails(
-                                  student: widget.student,
-                                  formKey: _formKey,
-                                  ref: ref);
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) =>
+                                    final futureDetails = updateStudentDetails(
+                                      student: widget.student,
+                                      formKey: _formKey,
+                                      ref: ref,
+                                    );
+                                    pushRoute(
+                                      context,
                                       LoadingHelper(
-                                        future: futureDetails,
-                                        onFutureComplete: (error) {
+                                          future: futureDetails,
+                                          onFutureComplete: (taskResult) {
+                                            if (taskResult ==
+                                                TaskResult
+                                                    .failStudentAlreadyExists) {
+                                              Navigator.of(context)
+                                                  .pushAndRemoveUntil(
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              StudentSettings(
+                                                                  student: widget
+                                                                      .student)),
+                                                      (route) => false);
 
-
-                                          if (error == TaskResult
-                                              .failStudentAlreadyExists) {
-                                            Navigator.of(context)
-                                                .pushAndRemoveUntil(
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        StudentSettings(
-                                                            student: widget
-                                                                .student)
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(AppMessages
+                                                      .studentAlreadyExistsInClass),
                                                 ),
-                                                    (route) => false);
-
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                    'Saved details failed = a student with the same name is already in this class'),
-                                              ),
-                                            );
-                                          } else {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                    'Student details saved'),
-                                              ),
-                                            );
-                                            Navigator.of(context)
-                                                .pushAndRemoveUntil(
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        ClassroomMain(
-                                                            classroom: widget
-                                                                .student
-                                                                .classroom)
+                                              );
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(AppMessages
+                                                      .studentDetailsSaved),
                                                 ),
-                                                    (route) => false);
-                                          }
-
-                                        }
-                                      ),
-                                ),
-                              );
-                            }
-                          }
+                                              );
+                                              pushReplacementRoute(
+                                                  context,
+                                                  ClassroomMain(
+                                                      classroom: widget
+                                                          .student.classroom),);
+                                            }
+                                          },),
+                                    );
+                                  }
+                                }
                               : null,
                           child: const Text('Save changed details')),
                     )
@@ -222,11 +222,6 @@ class _StudentSettingsFormState extends ConsumerState<StudentSettingsForm> {
             );
           }
           return const LoadingPage();
-        }
-
-    );
+        });
   }
 }
-
-
-
