@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:pbs_app/classroom/student_dashboard.dart';
+import 'package:pbs_app/app/components/loading_page.dart';
+import 'package:pbs_app/classroom/dashboard/student_dashboard.dart';
 import 'package:pbs_app/utils/firebase_properties.dart';
+import 'package:pbs_app/utils/methods/awards_methods.dart';
 
 import '../app/components/avatar_image.dart';
 import '../models/student.dart';
+import 'dashboard/students_awards_banner.dart';
 
 class StudentTile extends StatefulWidget {
   const StudentTile({
@@ -21,9 +24,6 @@ class StudentTile extends StatefulWidget {
 class _StudentTileState extends State<StudentTile> {
   late final Stream<QuerySnapshot<Map<String, dynamic>>> _allStudentsStream;
 
-  bool _isPresent = false;
-  int _points = 0;
-
   @override
   void initState() {
     _allStudentsStream = FirebaseFirestore.instance
@@ -38,35 +38,37 @@ class _StudentTileState extends State<StudentTile> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Stack(
-      children: [
-        InkWell(
-          onTap: () {
-            showDialog(
-                barrierColor: Colors.transparent,
-                context: context,
-                builder: (context) =>
-                    StudentDashboard(student: widget.student));
-          },
-          child: StreamBuilder(
-            stream: _allStudentsStream,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                final docs = snapshot.data!.docs;
-                for (var d in docs) {
-                  if (d.id == widget.student.name) {
-                    _points = d.get('points');
-                    _isPresent = d.get('present');
-                  }
-                }
-              }
-              return Column(
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: _allStudentsStream,
+      builder: (context, snapshot) {
+        Student student = Student.emptyInitialize();
+
+        if (snapshot.hasData) {
+          final docs = snapshot.data!.docs;
+          for (var d in docs) {
+            if (d.id == widget.student.name) {
+              student = Student.fromJson(name: d.id, json: d.data());
+            }
+          }
+        }
+
+        return Stack(
+          children: [
+            InkWell(
+              onTap: () {
+                showDialog(
+                    barrierColor: Colors.transparent,
+                    context: context,
+                    builder: (context) =>
+                        StudentDashboard(student: widget.student));
+              },
+              child: Column(
                 children: [
                   Expanded(
                     flex: 2,
                     child: AvatarImage(
                       student: widget.student,
-                      present: _isPresent,
+                      present: student.present,
                     ),
                   ),
                   SizedBox(
@@ -95,11 +97,12 @@ class _StudentTileState extends State<StudentTile> {
                             alignment: Alignment.centerRight,
                             child: Container(
                               decoration: const BoxDecoration(
-                                  color: Colors.black12,
-                                  shape: BoxShape.circle,),
+                                color: Colors.black12,
+                                shape: BoxShape.circle,
+                              ),
                               child: Center(
                                 child: Text(
-                                  _points.toString(),
+                                  student.points.toString(),
                                   style: Theme.of(context)
                                       .textTheme
                                       .displaySmall
@@ -113,12 +116,13 @@ class _StudentTileState extends State<StudentTile> {
                       ],
                     ),
                   ),
+                  StudentsAwardsBanner(student: widget.student)
                 ],
-              );
-            },
-          ),
-        ),
-      ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

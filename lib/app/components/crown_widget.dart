@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pbs_app/utils/firebase_properties.dart';
 
-import '../../classroom/student_crown.dart';
+import '../../classroom/dashboard/student_crown.dart';
 import '../../models/student.dart';
 
 class CrownWidget extends StatefulWidget {

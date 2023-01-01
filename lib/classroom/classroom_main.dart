@@ -89,6 +89,7 @@ class _ClassRoomMainState extends ConsumerState<ClassroomMain> {
                             crossAxisCount: 4,
                             mainAxisSpacing: size.width * 0.02,
                             crossAxisSpacing: size.width * 0.02,
+                                mainAxisExtent: size.height * 0.12
                           ),
                           itemBuilder: (context, index) {
                             return StudentTile(
@@ -96,8 +97,8 @@ class _ClassRoomMainState extends ConsumerState<ClassroomMain> {
                             );
                           },
                         )
-                      : const Padding(
-                          padding: EdgeInsets.all(38.0),
+                      : Padding(
+                          padding: EdgeInsets.all(size.width * 0.01),
                           child: Center(
                             child: Text(
                               AppMessages.getStartedByAddingStudents,

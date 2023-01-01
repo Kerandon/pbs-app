@@ -41,6 +41,8 @@ class Student extends Equatable {
     );
   }
 
+
+
   factory Student.fromJson(
       {required String name, required Map<String, dynamic> json}) {
     Gender gender = Gender.male;
@@ -60,6 +62,10 @@ class Student extends Equatable {
       present: json['present'],
       points: json['points'],
     );
+  }
+
+  factory Student.emptyInitialize(){
+    return const Student(name: "", gender: Gender.male, house: "", classroom: "", present: true, points: 0);
   }
 
   @override

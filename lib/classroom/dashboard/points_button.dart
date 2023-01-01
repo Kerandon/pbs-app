@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pbs_app/configs/ui_constants.dart';
 
-import '../utils/methods/points_methods.dart';
+import '../../utils/methods/points_methods.dart';
 
 class PointsButton extends StatelessWidget {
   const PointsButton({

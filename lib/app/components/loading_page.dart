@@ -2,9 +2,10 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 
 class LoadingPage extends StatelessWidget {
-  const LoadingPage({Key? key, this.text1, this.text2}) : super(key: key);
+  const LoadingPage({Key? key, this.text1, this.text2, this.removeText = false}) : super(key: key);
 
   final String? text1, text2;
+  final bool removeText;
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +17,8 @@ class LoadingPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const CircularProgressIndicator(),
-                const SizedBox(
+                CircularProgressIndicator(),
+                 removeText ? Placeholder() : SizedBox(
                   height: 80,
                 ),
                 AnimatedTextKit(

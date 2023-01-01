@@ -1,22 +1,18 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pbs_app/animations/slide_animation.dart';
 import 'package:pbs_app/app/components/avatar_image.dart';
 import 'package:pbs_app/app/components/loading_helper.dart';
-import 'package:pbs_app/classroom/points_button.dart';
+import 'package:pbs_app/classroom/dashboard/awards_menu.dart';
+import 'package:pbs_app/classroom/dashboard/points_button.dart';
 import 'package:pbs_app/classroom/student_settings.dart';
-import 'package:pbs_app/utils/app_messages.dart';
 import 'package:pbs_app/utils/firebase_properties.dart';
-import 'package:pbs_app/utils/methods/pop_ups.dart';
-import '../app/components/confirmation_box.dart';
-import '../configs/ui_constants.dart';
-import '../models/student.dart';
+import '../../app/components/confirmation_box.dart';
+import '../../configs/ui_constants.dart';
+import '../../models/student.dart';
 
-import '../utils/enums/task_result.dart';
-import '../utils/methods/points_methods.dart';
-import '../utils/methods/route_methods.dart';
+import '../../utils/methods/points_methods.dart';
+import '../../utils/methods/route_methods.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({Key? key, required this.student}) : super(key: key);
@@ -54,19 +50,23 @@ class _StudentDashboardState extends State<StudentDashboard> {
       child: Align(
         alignment: Alignment.bottomCenter,
         child: SizedBox(
-          height: size.height * 0.35,
+          height: size.height * 0.50,
           width: size.width,
           child: Column(
             children: [
               Expanded(
                   flex: 2,
-                  child: PointsButton(documentRef: _documentReference,)),
+                  child: PointsButton(
+                    documentRef: _documentReference,
+                  ),),
               Expanded(
                 flex: 2,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.only(topLeft: Radius.circular(kBorderRadius), topRight: Radius.circular(kBorderRadius) ),
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(kBorderRadius),
+                      topRight: Radius.circular(kBorderRadius)),
                   child: Material(
-                    color: Colors.orange,
+                    color: Colors.deepPurple,
                     child: Dialog(
                       elevation: 0,
                       backgroundColor: Colors.transparent,
@@ -124,7 +124,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                                 ),
                                                 child: ElevatedButton(
                                                   onPressed: () async {
-
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (context) =>
+                                                             AwardsMenu(student: widget.student,));
                                                   },
                                                   child: const Text(
                                                       'More Awards...'),
@@ -144,7 +147,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                                       (transaction) async {
                                                         transaction.update(
                                                           _documentReference,
-                                                          {'present': !_present},
+                                                          {
+                                                            'present': !_present
+                                                          },
                                                         );
                                                       },
                                                     );
@@ -172,8 +177,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                                       MaterialPageRoute(
                                                         builder: (context) =>
                                                             StudentSettings(
-                                                                student:
-                                                                    widget.student),
+                                                                student: widget
+                                                                    .student),
                                                       ),
                                                     );
                                                   },
@@ -191,19 +196,20 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                                             context: context,
                                                             builder: (context) {
                                                               return Builder(
-                                                                builder: (context) {
+                                                                builder:
+                                                                    (context) {
                                                                   return ConfirmationBox(
                                                                     title:
                                                                         'Clear ${widget.student.name}\'s points?',
-                                                                    voidCallBack: () {
+                                                                    voidCallBack:
+                                                                        () {
                                                                       pushRoute(
                                                                         context,
                                                                         LoadingHelper(
                                                                             text1:
                                                                                 "Clearing points",
-                                                                            future: clearPoints(
-                                                                                student:
-                                                                                    widget.student)),
+                                                                            future:
+                                                                                clearPoints(student: widget.student)),
                                                                       );
                                                                     },
                                                                   );
