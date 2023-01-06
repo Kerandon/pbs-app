@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pbs_app/configs/app_theme.dart';
 import 'package:pbs_app/home_page.dart';
-import 'package:pbs_app/state/database_manager.dart';
-import 'package:pbs_app/state/simple_providers.dart';
 import 'package:pbs_app/utils/enums/platforms.dart';
-import 'app/components/error_page.dart';
-import 'app/components/loading_page.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'utils/globals.dart';
@@ -46,22 +42,7 @@ class PBSApp extends ConsumerWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: appTheme,
-      home: appPlatform != AppPlatform.web ?
-          FutureBuilder(
-              future: DatabaseManager().getAllAvatars(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final avatarState = ref.read(avatarProvider);
-                  avatarState.addAll(snapshot.data!);
-                  return const HomePage();
-                }
-                if (snapshot.hasError) {
-                  return const ErrorPage();
-                } else {
-                  return const LoadingPage(text1: 'Preparing the classroom',);
-                }
-              }
-          ) : const HomePage()
+      home: const HomePage()
     );
   }
 }

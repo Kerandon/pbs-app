@@ -73,3 +73,30 @@ Future<TaskResult> clearAllStudentsPoints({required String classroom}) async {
 
   return TaskResult.success;
 }
+
+
+void setTopPointsScorers({required Set<Student> students}) {
+  if(students.isNotEmpty) {
+    List<Student> studentsList = students.toList();
+    studentsList.sort((a, b) => b.points.compareTo(a.points));
+    Set<Student> topPointsStudents = {studentsList.first};
+    for (var s in studentsList) {
+      if (s.points == topPointsStudents.first.points) {
+        topPointsStudents.add(s);
+      }
+    }
+
+    for (var s in students) {
+
+      bool isTop = topPointsStudents.contains(s);
+
+      FirebaseFirestore.instance.collection(
+          FirebaseProperties.collectionClassrooms)
+          .doc(s.classroom).collection(
+          FirebaseProperties.collectionStudents)
+          .doc(s.name).update(
+          {FirebaseProperties.topPoints: isTop});
+    }
+  }
+}
+

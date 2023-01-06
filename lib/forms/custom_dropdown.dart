@@ -30,7 +30,8 @@ class CustomDropDown extends StatelessWidget {
             ? Expanded(
                 child: Text(
                   leading!,
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: Theme.of(context).textTheme.displaySmall
+                  !.copyWith(color: Colors.black54),
                 ),
               )
             : const SizedBox(),

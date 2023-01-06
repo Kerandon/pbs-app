@@ -70,7 +70,7 @@ class _StudentSettingsState extends ConsumerState<StudentSettings> {
                         builder: (context) => ConfirmationBox(
                           title:
                               'Are you sure you want to remove ${widget.student.name}?',
-                          voidCallBack: () => pushReplacementRoute(
+                          voidCallBack: () => pushRoute(
                             context,
                             Builder(builder: (context) {
                               return LoadingHelper(
@@ -191,9 +191,8 @@ class _StudentSettingsState extends ConsumerState<StudentSettings> {
                                 final result = await pickImage();
                                 if (result != null) {
                                   if (mounted) {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => LoadingHelper(
+                                    pushRoute(
+                                        context, LoadingHelper(
                                           onFutureComplete: (taskStatus) {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
@@ -202,20 +201,17 @@ class _StudentSettingsState extends ConsumerState<StudentSettings> {
                                               ),
                                             );
 
-                                            Navigator.of(context)
-                                                .pushReplacement(
-                                                    MaterialPageRoute(
-                                              builder: (context) =>
+                                            pushRoute(context,
                                                   StudentSettings(
                                                       student: widget.student),
-                                            ));
+                                            );
                                           },
                                           future: saveFileImage(
                                               file: result,
                                               student: widget.student,
                                               ref: ref),
                                         ),
-                                      ),
+
                                     );
                                   }
                                 }

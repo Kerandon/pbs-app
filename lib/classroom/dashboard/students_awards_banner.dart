@@ -1,7 +1,8 @@
-
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';import '../../models/student.dart';
-
+import 'package:flutter/material.dart';
+import 'package:pbs_app/utils/app_messages.dart';
+import '../../models/student.dart';
 
 import '../../utils/firebase_properties.dart';
 import '../../utils/methods/awards_methods.dart';
@@ -10,9 +11,13 @@ class StudentsAwardsBanner extends StatefulWidget {
   const StudentsAwardsBanner({
     super.key,
     required this.student,
+    this.onlyShowOne = false,
+    this.removeNoAwardsText = false,
   });
 
   final Student student;
+  final bool onlyShowOne;
+  final bool removeNoAwardsText;
 
   @override
   State<StudentsAwardsBanner> createState() => _StudentsAwardsBannerState();
@@ -54,6 +59,18 @@ class _StudentsAwardsBannerState extends State<StudentsAwardsBanner> {
                 awardNames.add(d.key);
               }
 
+              bool scroll = false;
+              double viewPointFraction = 0.10;
+
+              if (widget.onlyShowOne) {
+                scroll = true;
+                viewPointFraction = 1.0;
+              } else {
+                if (awardNames.length > 9) {
+                  scroll = true;
+                }
+              }
+
               return FutureBuilder(
                 future: getAllAwardImages(awardNames: awardNames),
                 builder: (context, snapshot) {
@@ -63,15 +80,40 @@ class _StudentsAwardsBannerState extends State<StudentsAwardsBanner> {
                     awardMaps.addEntries(snapshot.data!.entries);
 
                     return awardMaps.isNotEmpty
-                        ? Image.network(awardMaps.entries.first.value)
-                        : SizedBox();
+                        ? CarouselSlider(
+                            items: awardMaps.entries
+                                .map(
+                                  (e) => Container(
+                                    decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                            image: NetworkImage(e.value))),
+                                  ),
+                                )
+                                .toList(),
+                            options: CarouselOptions(
+                              enableInfiniteScroll: scroll,
+                              viewportFraction: viewPointFraction,
+                              autoPlay: scroll,
+                              autoPlayInterval: const Duration(milliseconds: 2000),
+                            ),
+                          )
+                        : const SizedBox();
                   }
-                  return SizedBox();
+                  return const SizedBox();
                 },
               );
             }
           }
-          return SizedBox();
+          return widget.removeNoAwardsText
+              ? const SizedBox()
+              : Text(
+                  AppMessages.noAwards,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .displaySmall!
+                      .copyWith(color: Colors.black54),
+                );
         },
       ),
     );

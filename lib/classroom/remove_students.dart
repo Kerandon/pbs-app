@@ -47,6 +47,7 @@ class _RemoveStudentsPageState extends ConsumerState<RemoveStudentsPage> {
   }
 
   void _selectAll() {
+
     if (!_allSelected) {
       for (var s in students) {
         _checkedList.addAll({s: true});
@@ -93,7 +94,7 @@ class _RemoveStudentsPageState extends ConsumerState<RemoveStudentsPage> {
             child: Center(
                 child: Text(
               '${_numberSelected.toString()} selected',
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.headlineSmall,
             )),
           ),
           IconButton(

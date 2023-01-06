@@ -5,15 +5,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:pbs_app/utils/firebase_properties.dart';
-import 'package:pbs_app/state/database_manager.dart';
 import 'package:pbs_app/models/avatar_image.dart';
 import 'package:pbs_app/utils/enums/task_result.dart';
 import 'dart:developer' as developer;
 
 import '../../state/simple_providers.dart';
-import '../globals.dart';
 import '../../models/student.dart';
-import '../enums/platforms.dart';
 
 Future<TaskResult> generateAvatar(
     {required Student student, required WidgetRef ref}) async {
@@ -35,15 +32,8 @@ Future<TaskResult> generateAvatar(
         .ref('${FirebaseProperties.avatarsBucket}/$avatarKey')
         .putData(bytes);
   } on FirebaseException catch (e) {
-    developer.log('ERROR!! ${e.message!}');
+    developer.log(e.message!);
     return TaskResult.failFirebase;
-  }
-  if (appPlatform != AppPlatform.web) {
-    await DatabaseManager().insertAvatars(
-      avatars: [
-        SavedAvatar(avatarKey: avatarKey, bytes: bytes),
-      ],
-    );
   }
   ref.read(avatarProvider).addAll(
     [
@@ -66,10 +56,6 @@ Future<TaskResult> saveImageData(
     developer.log(e.message!);
     return TaskResult.failFirebase;
   }
-  if (appPlatform != AppPlatform.web) {
-    await DatabaseManager().insertAvatars(
-        avatars: [SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
-  }
 
   ref
       .read(avatarProvider)
@@ -87,9 +73,6 @@ Future<TaskResult> removeImageData(
   } on FirebaseException catch (e) {
     developer.log(e.message!);
     return TaskResult.failFirebase;
-  }
-  if (appPlatform != AppPlatform.web) {
-    await DatabaseManager().deleteAvatar(avatarKey: avatarKey);
   }
 
   ref

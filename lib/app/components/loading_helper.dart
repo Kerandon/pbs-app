@@ -4,7 +4,7 @@ import 'package:pbs_app/utils/methods/pop_ups.dart';
 import '../../utils/app_messages.dart';
 import 'loading_page.dart';
 
-class LoadingHelper extends StatefulWidget {
+class LoadingHelper extends StatelessWidget {
   const LoadingHelper({
     super.key,
     required this.future,
@@ -18,51 +18,30 @@ class LoadingHelper extends StatefulWidget {
   final String? text1, text2;
 
   @override
-  State<LoadingHelper> createState() => _LoadingHelperState();
-}
-
-class _LoadingHelperState extends State<LoadingHelper> {
-
-  late final _navigator;
-
-
-  @override
-  void didChangeDependencies() {
-    _navigator = Navigator.of(context);
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder<dynamic>(
-      future: widget.future,
+      future: future,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-            if (snapshot.hasError) {
-              showSnackBarMessage(context, AppMessages.errorFirebaseConnection);
-              widget.onFutureComplete?.call(TaskResult.failFirebase);
-            } else {
-              final result = snapshot.data as TaskResult;
-              if (result == TaskResult.success) {
-                await Navigator.maybePop(context).then((value) {
-                  widget.onFutureComplete?.call(TaskResult.success);
-                });
-
-              }
-              if (result == TaskResult.failStudentAlreadyExists) {
-                widget.onFutureComplete
-                    ?.call(TaskResult.failStudentAlreadyExists);
-              }
-            }
-          });
+        if (snapshot.hasError) {
+          Navigator.of(context).maybePop().then(
+            (value) {
+              onFutureComplete?.call(TaskResult.failFirebase);
+            },
+          );
+        }
+        if (snapshot.hasData) {
+          if (snapshot.data == TaskResult.failFirebase ||
+              snapshot.data == TaskResult.failHttp) {
+            showSnackBarMessage(context, AppMessages.errorFirebaseConnection);
+          }
+          Navigator.maybePop(context)
+              .then((value) => {onFutureComplete!.call(snapshot.data)});
         }
         return LoadingPage(
-          text1: widget.text1,
-          text2: widget.text2,
+          text1: text1,
+          text2: text2,
         );
       },
     );
   }
 }
-

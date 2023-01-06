@@ -17,7 +17,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('PBS Tracker',),
+        centerTitle: true,
+      ),
       endDrawer: Drawer(
         child: Column(
           children: [

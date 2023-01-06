@@ -4,9 +4,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pbs_app/state/database_manager.dart';
 import 'package:pbs_app/state/simple_providers.dart';
 import 'package:pbs_app/utils/enums/task_result.dart';
+import 'package:pbs_app/utils/firebase_properties.dart';
 
 import '../../models/avatar_image.dart';
 import '../../models/student.dart';
@@ -35,15 +35,12 @@ Future<TaskResult> saveFileImage(
 
   try {
     await FirebaseStorage.instance
-        .ref('${student.classroom}_${student.name}')
+        .ref('${FirebaseProperties.avatarsBucket}/$avatarKey')
         .putData(bytes);
   } on FirebaseException catch (e) {
     developer.log(e.message!);
     return TaskResult.failFirebase;
   }
-
-  await DatabaseManager().insertAvatars(
-      avatars: [SavedAvatar(avatarKey: avatarKey, bytes: bytes)]);
 
   return TaskResult.success;
 }

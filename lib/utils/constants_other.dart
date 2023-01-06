@@ -1,0 +1,1 @@
+const kAustraliaLocale = 'en_AU';

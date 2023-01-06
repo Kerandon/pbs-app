@@ -76,7 +76,8 @@ Future<TaskResult> addStudentsToFirebase(
             FirebaseProperties.house: s.house,
             FirebaseProperties.classroom: s.classroom,
             FirebaseProperties.points: 0,
-            FirebaseProperties.attendance: true
+            FirebaseProperties.attendance: true,
+            FirebaseProperties.topPoints: false,
           },
         );
         await generateAvatar(student: s, ref: ref);
@@ -106,15 +107,14 @@ Future<TaskResult> updateStudentDetails({
     if (student.name == value[FirebaseProperties.name] &&
         student.classroom == value[FirebaseProperties.classroom]) {
       await documentReference.set({
-        'gender': value[FirebaseProperties.gender],
-        'classroom': value[FirebaseProperties.classroom],
-        'house': value[FirebaseProperties.house],
-        'points': int.parse(value[FirebaseProperties.points]),
-        'present':
-            value[FirebaseProperties.attendance] == 'Present' ? true : false
+        FirebaseProperties.gender : value[FirebaseProperties.gender],
+        FirebaseProperties.classroom : value[FirebaseProperties.classroom],
+        FirebaseProperties.house : value[FirebaseProperties.house],
+        FirebaseProperties.points : int.parse(value[FirebaseProperties.points]),
+        FirebaseProperties.attendance :
+            value[FirebaseProperties.attendance] == 'Present' ? true : false,
+        FirebaseProperties.topPoints: false,
       });
-
-      print('quick edit');
     } else {
       bool alreadyExists =
           await checkIfStudentExistsInClassroom(formKey: formKey);
@@ -145,7 +145,8 @@ Future<TaskResult> updateStudentDetails({
           FirebaseProperties.points:
               int.parse(value[FirebaseProperties.points]),
           FirebaseProperties.attendance:
-              value[FirebaseProperties.attendance] == 'Present' ? true : false
+              value[FirebaseProperties.attendance] == 'Present' ? true : false,
+          FirebaseProperties.topPoints: false,
         }).then((value) async {
           await documentReference.delete();
         });

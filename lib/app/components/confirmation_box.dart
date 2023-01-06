@@ -17,26 +17,27 @@ class ConfirmationBox extends StatelessWidget {
         title,
         style: Theme.of(context)
             .textTheme
-            .headlineSmall
-            ?.copyWith(color: Colors.blue),
+            .headlineSmall!.copyWith(color: Colors.black),
         textAlign: TextAlign.center,
       ),
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: [
         IconButton(
-          onPressed: () async {
+          onPressed: () {
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              voidCallBack.call();
+            });
 
-            await Navigator.maybePop(context);
 
-            voidCallBack.call();
           },
-          icon: const Icon(Icons.check),
+          icon: const Icon(Icons.check, color: Colors.black, size: 30,),
         ),
         IconButton(
           onPressed: () async => await Navigator.maybePop(context),
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close, color: Colors.black, size: 30,),
         ),
       ],
     );
   }
 }
+

@@ -2,13 +2,10 @@ import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:pbs_app/utils/globals.dart';
-import 'package:pbs_app/state/database_manager.dart';
+import 'package:pbs_app/animations/fade_in_animation.dart';
 import 'package:pbs_app/state/simple_providers.dart';
-import 'package:pbs_app/utils/enums/platforms.dart';
 import '../../models/avatar_image.dart';
 import '../../models/student.dart';
-import 'crown_widget.dart';
 
 class AvatarImage extends ConsumerStatefulWidget {
   const AvatarImage({Key? key, required this.student, this.present = true})
@@ -29,7 +26,8 @@ class _AvatarImageState extends ConsumerState<AvatarImage> {
   @override
   void initState() {
     _avatarKey = '${widget.student.classroom}_${widget.student.name}';
-    _firebaseStorageFuture = FirebaseStorage.instance.ref().child('avatars/$_avatarKey').getData();
+    _firebaseStorageFuture =
+        FirebaseStorage.instance.ref().child('avatars/$_avatarKey').getData();
     super.initState();
   }
 
@@ -50,19 +48,12 @@ class _AvatarImageState extends ConsumerState<AvatarImage> {
                 future: _firebaseStorageFuture,
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
-
                     return ImageBox(bytes: null, present: widget.present);
                   }
                   if (snapshot.hasData) {
                     _bytes = snapshot.data;
                     avatarState.addAll(
                         [SavedAvatar(avatarKey: _avatarKey, bytes: _bytes!)]);
-
-                    if (appPlatform != AppPlatform.web) {
-                      DatabaseManager().insertAvatars(avatars: [
-                        SavedAvatar(avatarKey: _avatarKey, bytes: _bytes!)
-                      ]);
-                    }
 
                     return ImageBox(
                       bytes: _bytes,
@@ -75,7 +66,7 @@ class _AvatarImageState extends ConsumerState<AvatarImage> {
                 bytes: _bytes,
                 present: widget.present,
               ),
-        CrownWidget(student: widget.student)
+        //CrownWidget(student: widget.student)
       ],
     );
   }
@@ -94,19 +85,42 @@ class ImageBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _bytes != null
-        ? SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: present
-                ? Image.memory(_bytes!)
-                : Image.memory(
-                    _bytes!,
-                    color: Colors.grey,
-                  ),
-          )
-        : Center(
-
-        child: Icon(Icons.person, color: present ? Colors.blue : Colors.grey, size: 50,));
+    final size = MediaQuery.of(context).size;
+    return FadeInAnimation(
+      child: SizedBox(
+        width: double.infinity,
+        height: double.infinity,
+        child: Container(
+            width: size.width * 0.15,
+            height: size.width * 0.15,
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColorDark,
+              shape: BoxShape.circle,
+              image: _bytes != null && present
+                  ? DecorationImage(
+                      image: MemoryImage(
+                        _bytes!,
+                      ),
+                      fit: BoxFit.contain)
+                  : null,
+            ),
+            child: _bytes == null
+                ? present
+                    ? Icon(
+                        Icons.person_outline,
+                        size: 30,
+                      )
+                    : Icon(
+                        Icons.home_outlined,
+                        size: 30,
+                      )
+                : present
+                    ? SizedBox()
+                    : Icon(
+                        Icons.home_outlined,
+                        size: 30,
+                      )),
+      ),
+    );
   }
 }

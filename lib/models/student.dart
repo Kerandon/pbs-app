@@ -9,6 +9,7 @@ class Student extends Equatable {
   final String classroom;
   final bool present;
   final int points;
+  final bool topPoints;
 
   const Student({
     required this.name,
@@ -17,6 +18,7 @@ class Student extends Equatable {
     required this.classroom,
     required this.present,
     required this.points,
+    required this.topPoints,
   });
 
   factory Student.fromForm(
@@ -24,9 +26,9 @@ class Student extends Equatable {
       required String gender,
       required String house,
       required String classRoom}) {
-    Gender g = Gender.male;
-    if (gender == Gender.female.name) {
-      g = Gender.female;
+    Gender g = Gender.boy;
+    if (gender == Gender.girl.name) {
+      g = Gender.girl;
     }
     if (gender == Gender.other.name) {
       g == Gender.other;
@@ -38,6 +40,7 @@ class Student extends Equatable {
       classroom: classRoom,
       present: true,
       points: 0,
+      topPoints: false,
     );
   }
 
@@ -45,10 +48,10 @@ class Student extends Equatable {
 
   factory Student.fromJson(
       {required String name, required Map<String, dynamic> json}) {
-    Gender gender = Gender.male;
+    Gender gender = Gender.boy;
     String g = json['gender'];
-    if (g == Gender.female.name) {
-      gender = Gender.female;
+    if (g == Gender.girl.name) {
+      gender = Gender.girl;
     }
     if (g == Gender.other.name) {
       gender == Gender.other;
@@ -61,11 +64,12 @@ class Student extends Equatable {
       classroom: json['classroom'],
       present: json['present'],
       points: json['points'],
+      topPoints: json['topPoints']
     );
   }
 
   factory Student.emptyInitialize(){
-    return const Student(name: "", gender: Gender.male, house: "", classroom: "", present: true, points: 0);
+    return const Student(name: "", gender: Gender.boy, house: "", classroom: "", present: true, points: 0, topPoints: false);
   }
 
   @override

@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:pbs_app/app/components/loading_page.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pbs_app/classroom/dashboard/student_dashboard.dart';
+import 'package:pbs_app/configs/ui_constants.dart';
 import 'package:pbs_app/utils/firebase_properties.dart';
-import 'package:pbs_app/utils/methods/awards_methods.dart';
-
 import '../app/components/avatar_image.dart';
+import '../configs/app_colors.dart';
 import '../models/student.dart';
 import 'dashboard/students_awards_banner.dart';
 
@@ -52,75 +52,81 @@ class _StudentTileState extends State<StudentTile> {
           }
         }
 
-        return Stack(
-          children: [
-            InkWell(
-              onTap: () {
-                showDialog(
-                    barrierColor: Colors.transparent,
-                    context: context,
-                    builder: (context) =>
-                        StudentDashboard(student: widget.student));
-              },
-              child: Column(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: AvatarImage(
-                      student: widget.student,
-                      present: student.present,
+        return InkWell(
+          onTap: () {
+            showDialog(
+                barrierColor: Colors.transparent,
+                context: context,
+                builder: (context) =>
+                    StudentDashboard(student: widget.student));
+          },
+          child: Column(
+            children: [
+              Expanded(
+                flex: 3,
+                child: AvatarImage(
+                  student: widget.student,
+                  present: student.present,
+                ),
+              ),
+              SizedBox(
+                height: size.height * 0.005,
+              ),
+              Expanded(
+                flex: 2,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        widget.student.name,
+                        style: Theme.of(context)
+                            .textTheme
+                            .displaySmall
+                            ?.copyWith(fontSize: 10, color: Colors.black),
+                        textAlign: TextAlign.right,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: size.height * 0.005,
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 10,
+                    student.topPoints
+                        ? const Icon(
+                            FontAwesomeIcons.award,
+                            color: AppColors.quinceJelly,
+                            size: 16,
+                          )
+                        : SizedBox(
+                            width: size.width * 0.02,
+                          ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: student.topPoints
+                              ? AppColors.quinceJelly
+                              : AppColors.hintOfIce,
+                          borderRadius: BorderRadius.circular(kBorderRadius),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                              size.width * 0.01,
+                              size.width * 0.01,
+                              size.width * 0.01,
+                              size.width * 0.01),
                           child: Text(
-                            widget.student.name,
+                            student.points.toString(),
                             style: Theme.of(context)
                                 .textTheme
-                                .displaySmall
-                                ?.copyWith(fontSize: 12),
-                            textAlign: TextAlign.right,
-                            overflow: TextOverflow.ellipsis,
+                                .displaySmall!
+                                .copyWith(fontSize: 10, color: Colors.black),
                           ),
                         ),
-                        const Expanded(child: SizedBox()),
-                        Expanded(
-                          flex: 5,
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.black12,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  student.points.toString(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .displaySmall
-                                      ?.copyWith(fontSize: 12),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                  StudentsAwardsBanner(student: widget.student)
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
